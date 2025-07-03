@@ -66,15 +66,16 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
+        // Regras de validação para os campos que estão NO FORMULÁRIO PÚBLICO
         $request->validate([
             'nome_completo' => 'required|string|max:255',
             'email' => 'required|email|unique:usuarios,email|max:150',
-            'senha' => 'required|string|min:8|confirmed', // 'confirmed' exige 'senha_confirmation' no formulário
-            'telefone1' => 'nullable|string|max:20', // Agora é nullable no seu BD
-            'telefone1_whatsapp' => 'boolean', // Mapeia para TINYINT(1)
+            'senha' => 'required|string|min:8|confirmed',
+            'telefone1' => 'nullable|string|max:20',
+            'telefone1_whatsapp' => 'boolean',
             'telefone2' => 'nullable|string|max:20',
             'telefone2_whatsapp' => 'boolean',
-            'endereco_id' => 'nullable|exists:enderecos,id', // Pode ser nullable no BD, mas verifica se ID existe
+            'endereco_id' => 'nullable|exists:enderecos,id', // Endereco pode ser null no BD
             'cpf' => 'required|string|unique:usuarios,cpf|max:45',
             'rg' => 'nullable|string|max:45',
             'orgao_emissor' => 'nullable|string|max:45',
@@ -82,25 +83,22 @@ class UsuarioController extends Controller
             'estado_civil' => 'nullable|string|max:20',
             'profissao' => 'nullable|string|max:100',
             'empresa' => 'nullable|string|max:100',
-            'cargo' => 'nullable|string|max:100',
+            'cargo' => 'nullable|string|max:100', // Campo existe no DB, mas não no form. Se não setado, DB default será usado.
             'salario' => 'nullable|string|max:20',
-            'cep' => 'nullable|string|max:10', // CEP do USUÁRIO, não do endereço de relacionamento
-            'creci' => 'nullable|string|unique:usuarios,creci|max:50',
-            'foto_url' => 'nullable|url|max:255',
-            'matricula' => 'nullable|string|unique:usuarios,matricula|max:50',
-            'tipo_usuario' => 'required|in:administrador,corretor,cliente,proprietario,locatario,funcionario', // Valores ENUM exatos
-            //'nivel_acesso' => 'required|integer', // NOT NULL DEFAULT '1' no BD
-            'ativo' => 'boolean',
-            'receber_email' => 'boolean',
-            'receber_sms' => 'boolean',
-            'receber_whatsapp' => 'boolean',
-            'instagram' => 'nullable|string|max:255',
-            'facebook' => 'nullable|string|max:255',
-            'twitter' => 'nullable|string|max:255',
-            'linkedin' => 'nullable|string|max:255',
-            'imobiliaria_id' => 'nullable|exists:imobiliarias,id', // Pode ser nullable no banco de dados
+            'cep' => 'nullable|string|max:10',
+            // 'creci' => 'nullable|string|unique:usuarios,creci|max:50', // Removido do form
+            // 'foto_url' => 'nullable|url|max:255', // Removido do form
+            // 'matricula' => 'nullable|string|unique:usuarios,matricula|max:50', // Removido do form
+            // 'tipo_usuario' => 'required|in:administrador,corretor,cliente,proprietario,locatario,funcionario', // Removido do form
+            // 'nivel_acesso' => 'required|integer', // Removido do form
+            // 'ativo' => 'boolean', // Removido do form
+            // 'receber_email' => 'boolean', // Removido do form
+            // 'receber_sms' => 'boolean', // Removido do form
+            // 'receber_whatsapp' => 'boolean', // Removido do form
+            // Redes sociais também removidas do form
+            // 'imobiliaria_id' => 'nullable|exists:imobiliarias,id', // Removido do form
         ], [
-            // Mensagens de validação personalizadas para clareza ao usuário
+            // Mensagens de validação personalizadas
             'nome_completo.required' => 'O nome completo é obrigatório.',
             'email.required' => 'O email é obrigatório.',
             'email.email' => 'Por favor, insira um endereço de email válido.',
@@ -108,80 +106,55 @@ class UsuarioController extends Controller
             'senha.required' => 'A senha é obrigatória.',
             'senha.min' => 'A senha deve ter no mínimo :min caracteres.',
             'senha.confirmed' => 'A confirmação de senha não corresponde.',
-            'telefone1.required' => 'Pelo menos um telefone é obrigatório.', // Se for REQUIRED no bnco de dados ou regra de negócio
             'cpf.required' => 'O CPF é obrigatório.',
             'cpf.unique' => 'Este CPF já está cadastrado.',
-            'creci.unique' => 'Este CRECI já está cadastrado.',
-            'matricula.unique' => 'Esta matrícula já está cadastrada.',
-            'endereco_id.exists' => 'O endereço selecionado não é válido.',
-            'imobiliaria_id.exists' => 'A imobiliária selecionada não é válida.',
-            'tipo_usuario.required' => 'O tipo de usuário é obrigatório.',
-            'tipo_usuario.in' => 'O tipo de usuário selecionado é inválido.',
-            'nivel_acesso.required' => 'O nível de acesso é obrigatório.',
         ]);
 
-        /**
-         * Recupera todos os dados do formulário da requisição, exceto os campos '_token' e 'senha_confirmation'.
-         * Isso é útil para excluir campos sensíveis ou desnecessários antes de processar ou armazenar os dados do usuário.
-         *
-         * @var array $userData Os dados filtrados do usuário.
-         */
         $userData = $request->except(['_token', 'senha_confirmation']);
 
-        /**
-         * Tratamento dos checkbox
-         * $request->has('campo): Retorna 'true' SE o chekbox foi marcado (enviou '1'), false caso contário
-         * O cast 'boolean' na Model encarrega-se de converter para 0 ou 1 no banco de dados
-         * O código para $userData['campo_boolean'] = $request->has('campo_boolean'); é CORRETO e necessário para checkboxes, 
-         * pois se não forem marcados, eles não são enviados no request, e has() os trata como false.
-         */
+        // Tratamento dos checkboxes de telefone
         $userData['telefone1_whatsapp'] = $request->has('telefone1_whatsapp');
         $userData['telefone2_whatsapp'] = $request->has('telefone2_whatsapp');
-        $userData['ativo'] = $request->has('ativo');
-        $userData['receber_email'] = $request->has('receber_email');
-        $userData['receber_sms'] = $request->has('receber_sms');
-        $userData['receber_whatsapp'] = $request->has('receber_whatsapp');
 
-        // LÓGICA DE CONTROLE DE NÍVEL DE ACESSO COM BASE NO TIPO DE USUÁRIO
-        $tipoUsuarioSelecionado  = $request->input('tipo_usuario');
-        $nivenivelAcessoAtribuido = 0;
+        // ATRIBUIÇÃO MANUAL DOS PADRÕES PARA CADASTRO PÚBLICO
+        // Estes campos estão no $guarded e/ou não vêm do formulário, então os definimos aqui.
+        $userData['tipo_usuario'] = 'cliente'; // Padrão para cadastro público
+        $userData['nivel_acesso'] = 4;        // Nível 4 para cliente
+        $userData['ativo'] = true;            // Usuário ativo por padrão ao se cadastrar
+        $userData['receber_email'] = true;    // Receber emails por padrão
+        $userData['receber_sms'] = false;     // Não receber SMS por padrão
+        $userData['receber_whatsapp'] = false; // Não receber WhatsApp por padrão
 
-        switch ($tipoUsuarioSelecionado) {
-            case 'administrador':
-                $nivenivelAcessoAtribuido = 1; 
-                break;
-            case 'corretor':
-                $nivenivelAcessoAtribuido = 2;
-                break;
-            case 'funcionario':
-                $nivenivelAcessoAtribuido = 3;
-                break;
-            case 'cliente':
-            case 'proprietario':
-            case 'locatario':
-            default: // Caso algum valor inesperado (garantido pelo 'in' da validação)
-                $nivenivelAcessoAtribuido = 4; // Nível padrão para usuários básicos
-                break;           
+        // Campos que não estão no formulário mas podem ter default no DB ou serem null
+        // 'creci', 'foto_url', 'matricula', redes sociais
+        // Se eles não estiverem no $userData, e a coluna for nullable, o Laravel salva NULL.
+        // Se a coluna tiver um default no DB e não for nullable, o DB usa o default.
+        // Se a coluna for NOT NULL e sem default e você não passar, dará erro.
+        // Para 'cargo', que você tinha no form e removi, mas está no DB:
+        $userData['cargo'] = $request->input('cargo', null); // Garante que é null se não veio do form
+        $userData['salario'] = $request->input('salario', null);
+        $userData['empresa'] = $request->input('empresa', null);
+        $userData['profissao'] = $request->input('profissao', null);
+        $userData['estado_civil'] = $request->input('estado_civil', null);
+        $userData['orgao_emissor'] = $request->input('orgao_emissor', null);
+        $userData['data_nascimento'] = $request->input('data_nascimento', null);
+        $userData['cep'] = $request->input('cep', null);
+        $userData['creci'] = null; // Definido como null para novos cadastros públicos
+        $userData['foto_url'] = null;
+        $userData['matricula'] = null;
+        $userData['instagram'] = null;
+        $userData['facebook'] = null;
+        $userData['twitter'] = null;
+        $userData['linkedin'] = null;
+        $userData['imobiliaria_id'] = null; // Clientes não se associam a imobiliária no cadastro público
 
-        }
+        // Cria o usuário. O hashing da senha é feito automaticamente pelo cast 'hashed' na Model!
+        Usuario::create($userData);
 
-        //Cria a instÂncia do usuário, mas ATRIBUIR MANUALMENTE os campos $guardade
-        $usuario = new Usuario();
-        $usuario->fill($userData); // Preenche os campos que NÃO estão no $guarded
-
-        /*
-         * Fazendo a ATRIBUIÇÃO MANUAL DO CAMPOS '$guarded' que vem do formuçário
-         * tipo_usuario vem do formulkário, ou atribuimos 
-         */
-        $usuario->tipo_usuario = $tipoUsuarioSelecionado;
-        $usuario->nivel_acesso = $nivenivelAcessoAtribuido; // nivel_acesso é definido PELA LÓGICA, sobrescrevendo qualquer coisa do formulário.
-        $usuario->ativo = $request->input('ativo');
-        $usuario->imobiliaria_id = $request->input('imobiliaria_id'); // Imobiliaria vem do formulário
-
-        $usuario->save();
-       
-
-        // Redireciona para a lista de usuários com uma mensagem de sucesso (flash message)
-        return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
+        return redirect('/login')->with('success', 'Cadastro realizado com sucesso! Por favor, faça login.');
     }
 }
+
+
+    
+

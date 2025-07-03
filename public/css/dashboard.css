@@ -1,0 +1,53 @@
+/* public/css/dashboard.css */
+
+/* Estilos para a Navbar */
+#main-navbar {
+    height: 56px; /* Altura padrão da navbar Bootstrap */
+}
+
+/* Estilos para o Main Content para compensar a navbar fixa */
+main {
+    margin-top: 56px; /* Ajusta o conteúdo para não ficar por baixo da navbar */
+    padding-left: 250px; /* Espaço para a sidebar em telas grandes */
+    transition: all 0.3s ease; /* Transição suave ao expandir/recolher */
+}
+
+/* Estilos para a Sidebar */
+.sidebar-nav {
+    width: 250px;
+    top: 56px; /* Começa abaixo da navbar */
+    left: 0;
+    bottom: 0;
+    z-index: 1000; /* Garante que a sidebar fique acima do conteúdo */
+    padding-top: 20px; /* Espaço interno */
+}
+
+.sidebar-nav .navbar-nav .nav-link {
+    padding: 10px 15px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.sidebar-nav .navbar-nav .nav-link.active,
+.sidebar-nav .navbar-nav .nav-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.sidebar-nav .dropdown-divider {
+    margin: 0.5rem 0;
+}
+
+/* Ajustes responsivos para telas menores */
+@media (max-width: 991.98px) {
+    main {
+        padding-left: 0; /* Remove padding em telas pequenas */
+    }
+    .sidebar-nav {
+        transform: translateX(-100%); /* Esconde a sidebar fora da tela */
+        transition: transform 0.3s ease;
+    }
+    .sidebar-nav.show {
+        transform: translateX(0); /* Mostra a sidebar quando ativada */
+    }
+}

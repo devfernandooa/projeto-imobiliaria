@@ -1,19 +1,6 @@
 @extends('layouts.app');
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-<style>
-    .glassmorphism-card {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        /* Compatibilidade com Safari */
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: rgb(255, 255, 255);
-        /* Ajuste a cor do texto para melhor contraste */
-    }
-</style>
+
 
 @section('content')
         <!--  Carrossel -->

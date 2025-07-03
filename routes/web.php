@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UsuarioController;
 use app\Http\Controllers\EnderecoController;
+use App\Http\Controllers\ImobiliariaController;
 
 
 Route::get('/', function () {
@@ -27,49 +28,35 @@ Route::get('/', function () {
 
  });
 
-//  // Rotas de autenticação simplificadas
-
-//  //Rota para exibir o formulario de login (nome 'login' é padrão para redirecionamentos do Laravel)
-//  Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-
-//  // Rota para processar o login (o formulário envia para cá)
-//  Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
-
-// // Rota para um dashboard genérico (protegida por autenticação)
-// Route::middleware('auth')->group(function () {
-//     Route::get('/dashboard-generico', function () {
-//         return "<h1>Bem-vindo ao Dashboard Genérico!</h1><p>Você está logado como: ".Auth::user()->email."</p><form action='".route('logout')."' method='POST'>@csrf<button type='submit'>Sair</button></form>";
-//     })->name('dashboard-generico');
-// });
-
 
 // Dashboard, grupo de Rotas que exigem autentcação
 Route::middleware('auth')->group(function () {
     // Rota generica para o dashboard, vai ser redirecionando no controller LoginController
     Route::get('/dashboards', function () {
         return "Você está logado, redirecionado para o dashboard.";
-    })->name('dashboard');
+    })->name('dashboard');// Nome da rota principal que o LoginController chama
     /**
      * Route::middleware('auth'): Isso significa que todas as rotas dentro deste grupo só serão acessíveis se o usuário estiver logado.
      * Caso não esteja logado, o usuário será redirecionado para a página de login.
      * ->middleware('can:nome-da-permissao'): Isto é para o sistema de Gates e Policies do Laravel, que é a forma mais refinada de controlar permissões.
      * Neste caso, a rota só será acessível se o usuário tiver a permissão 'view-profile'.
     */     
+    //Rotas para cada tipo de usuário
     Route::get('/dashboards/admin', function () {
-        return view('admin.dashboards');
-    })->name('admin.dashboards')->middleware('can:access-admin-dashboards');
+        return view('dashboards.admin');
+    })->name('admin.dashboard')->middleware('can:access-admin-dashboard');
 
-    Route::get('/corretor/dashbard', function () {
-        return view ('corretor.dasboard');
-    })->name('corretor.dashboards')->middleware('can:access-corretor-dashboards');
+    Route::get('/dashboards/corretor', function () {
+        return view ('dasboards.corretor');
+    })->name('corretor.dashboard')->middleware('can:access-corretor-dashboard');
 
-    Route::get('/funcionario/dashbard', function () {
-        return view ('funcionario.dasboard');
-    })->name('funcionario.dashboards')->middleware('can:access-funcionario-dashboards');
+    Route::get('/dashboards/funcionario', function () {
+        return view ('dashboards.funcionario');
+    })->name('funcionario.dashboard')->middleware('can:access-funcionario-dashboard');
 
-    Route::get('/cliente/dashbard', function () {
-        return view ('cliente.dasboard');
-    })->name('cliente.dashboards')->middleware('can:access-cliente-dashboards');    
+    Route::get('/dashboards/cliente', function () {
+        return view ('dashboards.cliente');
+    })->name('cliente.dashboard')->middleware('can:access-cliente-dashboard');    
 
 });
 
@@ -104,4 +91,15 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index'])->name('usuarios.index');
     Route::get('/criar', [UsuarioController::class, 'create'])->name('usuarios.create');
     Route::post('/', [UsuarioController::class, 'store'])->name('usuarios.store');
+});
+
+/**
+ * ROTAS DE CRUD PARA IMOBILIÁRIAS 
+ * OBS: ImobiliariaController ainda não foi criado
+ */
+Route::prefix('imobiliarias')->group(function () {
+    Route::get('/', [ImobiliariaController::class, 'index'])->name('imobiliarias.index'); // <-- CRÍTICO! Este nome.
+    Route::get('/criar', [ImobiliariaController::class, 'create'])->name('imobiliarias.create');
+    Route::post('/', [ImobiliariaController::class, 'store'])->name('imobiliarias.store');
+    // Adicione aqui as rotas show, edit, update, destroy para Imobiliarias no futuro
 });

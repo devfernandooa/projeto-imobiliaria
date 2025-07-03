@@ -25,7 +25,7 @@ class LoginController extends Controller
 
     public function authenticate(Request $request)
     {
-       $credenciais = $request->validate([
+        $credenciais = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ], [
@@ -36,9 +36,11 @@ class LoginController extends Controller
 
         //Tenta autenticar o usuário
         //'senha' é o nome da coluna fornecida pelo banco de dados
-        if (Auth::attempt(['email' => $credenciais['email'], 'password' => $credenciais['password']], $request->boolean('remember'))){
+        if (Auth::attempt(['email' => $credenciais['email'], 'password' => $credenciais['password']], $request->boolean('remember'))) {
             $request->session()->regenerate(); //Regenera a sessão para segunrança
-            
+
+            $usuario = Auth::user(); // Pega a instÂncia do usuário logado
+
             // Se logou com sucesso, redireciona a rota padrão de dashboard
             return redirect()->intended('/dashboards/admin');
         } else {
@@ -47,13 +49,25 @@ class LoginController extends Controller
                 'email' => ['As credenciais fornecidas não correspondem aos nossos registros.'],
             ]);
         }
-        
     }
 
     /**
-     * 
+     * Redireciona o usuário para o dashboard apropriado com base no seu tipo e nível de acesso.
+     * @param \App\Models\Usuario $usuario
+     * @return \Illuminate\Http\RedirectResponse
      */
-    
+    public function redirecionamentoPorTipoUsuario (Usuario $usuario) 
+    {
+        if ($usuario->nivel_acesso == 1 && $usuario->tipo_usuario == 'administrador') {
+            return redirect()->route('admin.dashboard');
+        } elseif ($usuario->nivel_acesso == 2 && $usuario->tipo_usuario == 'corretor') {
+            return redirect()->route('corretor.dashboard');
+        } elseif ($usuario->nivel_acesso == 3 && $usuario->tipo_usuario == 'funcionario') {
+            return redirect()->route('funcionario.dashboard');
+        } else {
+            return redirect()->route('cliente.dashboard');
+        }
+    }
 
     /**
      * Faz o logout do usuário autenticado, invalida a sessão atual,
