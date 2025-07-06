@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-4">
-                <h4 class="mb-4"><i class="fas fa-home me-2"></i>Imobiliária Excelência</h4>
+                <h4 class="mb-4"><i class="fas fa-home me-2"></i>Imobiliária Imob Prime</h4>
                 <p>Há mais de 20 anos ajudando pessoas a realizarem o sonho da casa própria ou a fazerem bons
                     investimentos imobiliários.</p>
             </div>
@@ -44,7 +44,7 @@
 
         <div class="row">
             <div class="col-md-6 text-center text-md-start">
-                <p class="mb-0">&copy; 2023 Imobiliária Excelência. Todos os direitos reservados.</p>
+                <p class="mb-0">&copy; 2023 Imobiliária Imob Prime. Todos os direitos reservados.</p>
             </div>
             <div class="col-md-6 text-center text-md-end">
                 <p class="mb-0">Desenvolvido com <i class="fas fa-heart text-danger"></i> por Excelência Digital</p>

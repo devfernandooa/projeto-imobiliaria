@@ -158,7 +158,7 @@ Durante o desenvolvimento, as seguintes abordagens e decisões foram tomadas par
 * **Pesquisa e Filtros:** Melhorar a funcionalidade de pesquisa de imóveis no frontend.
 * **Implementação de Policies:** Para controle de acesso a ações mais granulares (ex: "corretor pode editar apenas seus próprios imóveis").
 
-## 🤝 Autor
+## 🤝 Autores
 
-Seu Nome
-[Seu Contato - Ex: Link do LinkedIn, GitHub ou Email]
+Fernando Almeida Linkedin: https://www.linkedin.com/in/fernandooar/
+Weslei Cardoso https://www.linkedin.com/in/wesleicardoso/

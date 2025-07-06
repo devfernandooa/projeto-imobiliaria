@@ -20,11 +20,18 @@ Route::get('/', function () {
  */
 
  Route::group([], function () {
-     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+     Route::get('/login', function (){
+        return redirect('/')->with('message', 'Você precisa estar logado para acessar o sistema.');
+     })->name('login');
     //Rota para o processamento de login, o MODAL vai vir com o método POST sera direcionado para essa rota.
     Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
     //Rota para o processamento de logout
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Rotas para cadastro público, essa rota vai exibiro formulário de cadastro público
+    Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [LoginController::class, 'registerUser'])->name('register.store');
+
 
  });
 
@@ -33,11 +40,11 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     // Rota generica para o dashboard, vai ser redirecionando no controller LoginController
     Route::get('/dashboards', function () {
-        return "Você está logado, redirecionado para o dashboard.";
+        return redirect()->action(LoginController::class, 'redirecionamentoPorTipoUsuario');
     })->name('dashboard');// Nome da rota principal que o LoginController chama
     /**
      * Route::middleware('auth'): Isso significa que todas as rotas dentro deste grupo só serão acessíveis se o usuário estiver logado.
-     * Caso não esteja logado, o usuário será redirecionado para a página de login.
+     * Caso não esteja logado, o usuário será redirecionado para a página inicial para que efetue o login.
      * ->middleware('can:nome-da-permissao'): Isto é para o sistema de Gates e Policies do Laravel, que é a forma mais refinada de controlar permissões.
      * Neste caso, a rota só será acessível se o usuário tiver a permissão 'view-profile'.
     */     

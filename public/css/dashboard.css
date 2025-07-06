@@ -5,21 +5,37 @@
     height: 56px; /* Altura padrão da navbar Bootstrap */
 }
 
-/* Estilos para o Main Content para compensar a navbar fixa */
 main {
-    margin-top: 56px; /* Ajusta o conteúdo para não ficar por baixo da navbar */
-    padding-left: 250px; /* Espaço para a sidebar em telas grandes */
-    transition: all 0.3s ease; /* Transição suave ao expandir/recolher */
+    margin-top: 56px;
+    padding-left: 250px;
+    padding-right: 20px; 
+    transition: all 0.3s ease;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Estilos para a Sidebar */
+main .container-fluid {
+    padding-top: 20px;
+    /* Ajuste para que o container ocupe a largura total disponível */
+    width: 100%; /* Garante que o container use a largura total do main */
+    max-width: none; /* Remove qualquer limitação de largura máxima padrão do Bootstrap */
+    flex-grow: 1;
+}
+
+
+/* Estilos para a Sidebar FIXA e 100% da altura */
 .sidebar-nav {
     width: 250px;
     top: 56px; /* Começa abaixo da navbar */
+    bottom: 0; /* NOVO: Vai até o final da tela */
     left: 0;
-    bottom: 0;
-    z-index: 1000; /* Garante que a sidebar fique acima do conteúdo */
-    padding-top: 20px; /* Espaço interno */
+    z-index: 1000;
+    padding-top: 20px;
+    /* NOVO: Torna a sidebar fixa na tela */
+    position: fixed;
+    height: calc(100vh - 56px); /* NOVO: 100% da altura da viewport menos a navbar */
+    overflow-y: auto; /* NOVO: Adiciona scroll se o conteúdo for maior que a tela */
 }
 
 .sidebar-nav .navbar-nav .nav-link {
@@ -38,16 +54,44 @@ main {
     margin: 0.5rem 0;
 }
 
-/* Ajustes responsivos para telas menores */
+/* Ajustes responsivos para telas menores (mantém offcanvas) */
 @media (max-width: 991.98px) {
     main {
         padding-left: 0; /* Remove padding em telas pequenas */
     }
     .sidebar-nav {
+        position: fixed; /* O offcanvas também é fixo */
+        top: 0; /* O offcanvas começa do topo da tela */
+        height: 100vh; /* O offcanvas ocupa 100% da altura da tela */
+        padding-top: 56px; /* Para que o conteúdo comece abaixo da navbar que pode estar fixa */
         transform: translateX(-100%); /* Esconde a sidebar fora da tela */
         transition: transform 0.3s ease;
     }
     .sidebar-nav.show {
         transform: translateX(0); /* Mostra a sidebar quando ativada */
     }
+    /* Ajuste para o conteúdo quando a sidebar offcanvas está aberta */
+    body.offcanvas-open main {
+        margin-left: 250px; /* Ou ajuste o que for necessário para não cobrir o conteúdo */
+    }
+}
+
+/* public/css/dashboard.css */
+
+/* ... (seu CSS existente) ... */
+
+/* Estilos para o ícone de seta nos sub-menus da sidebar */
+.sidebar-link {
+    display: flex; /* Para alinhar o texto e o ícone na mesma linha */
+    align-items: center; /* Centraliza verticalmente */
+}
+
+.sidebar-link .right-icon {
+    margin-left: auto; /* Empurra o ícone para a direita */
+    transition: transform 0.3s ease; /* Transição suave para a rotação */
+}
+
+/* Rotação do ícone quando o sub-menu está aberto */
+.sidebar-link[aria-expanded="true"] .right-icon {
+    transform: rotate(180deg); /* Gira o ícone para cima */
 }

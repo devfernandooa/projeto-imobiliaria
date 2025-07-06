@@ -49,5 +49,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('access-any-dashboard', function (Usuario $usuario){
             return $usuario->nivel_acesso >= 1 && $usuario->nivel_acesso <= 4; // Qualquer nível válido 
         });
+
+        // Gate para acesso ao formulário de cadastro de usuário COMPLETO (apenas administradores)
+        Gate::define('create-admin-users', function (Usuario $usuario){
+            return $usuario->nivel_acesso === 1 && $usuario->tipo_usuario === 'administrador';
+        });
     }
 }

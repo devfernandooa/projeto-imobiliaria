@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imobiliária Excelência - Seu lar dos sonhos</title>
+    <title>Imobiliária Imob Prime - Seu lar dos sonhos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
@@ -53,7 +53,7 @@
                                 <i class="fas fa-user-circle me-1"></i> Bem-vindo, {{ Auth::user()->nome_completo }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                                 <li><a class="dropdown-item" href="#">Meu Perfil</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
@@ -73,7 +73,7 @@
                                 data-bs-target="#loginModal">Login</button>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-primary nav-link" href="{{ route('usuarios.create') }}"
+                            <a class="btn btn-primary nav-link" href="{{ route('register') }}"
                                 style="color: white;">Cadastre-se</a>
                         </li>
                     @endauth
