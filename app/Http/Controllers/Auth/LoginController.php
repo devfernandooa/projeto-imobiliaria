@@ -33,7 +33,7 @@ class LoginController extends Controller
     public function showRegisterForm()
     {
         $enderecos = \App\Models\Endereco::all();
-        return view('auth.register', $enderecos);
+        return view('auth.register', compact('enderecos'));
     }
 
     /**
@@ -44,12 +44,21 @@ class LoginController extends Controller
      */
     public function registerUser(Request $request)
     {
+       // Regras de validação para os CAMPOS QUE ESTÃO NO FORMULÁRIO PÚBLICO "QUASE COMPLETO"
         $request->validate([
             'nome_completo' => 'required|string|max:255',
             'email' => 'required|email|unique:usuarios,email|max:150',
             'senha' => 'required|string|min:8|confirmed',
             'cpf' => 'required|string|unique:usuarios,cpf|max:45',
+            'rg' => 'nullable|string|max:45', // RG e Data de Nascimento agora são nullable no form
+            'data_nascimento' => 'nullable|date',
+            'telefone1' => 'nullable|string|max:20', // Telefone1 agora é nullable (se não for requerido no DB)
+            'telefone1_whatsapp' => 'boolean',
+            'telefone2' => 'nullable|string|max:20',
+            'telefone2_whatsapp' => 'boolean',
+            'endereco_id' => 'nullable|exists:enderecos,id', // Endereco_id agora é nullable no form
         ], [
+            // Mensagens de validação personalizadas
             'nome_completo.required' => 'O nome completo é obrigatório.',
             'email.required' => 'O email é obrigatório.',
             'email.email' => 'Por favor, insira um endereço de email válido.',
@@ -59,32 +68,34 @@ class LoginController extends Controller
             'senha.confirmed' => 'A confirmação de senha não corresponde.',
             'cpf.required' => 'O CPF é obrigatório.',
             'cpf.unique' => 'Este CPF já está cadastrado.',
+            'endereco_id.exists' => 'O endereço selecionado não é válido.',
         ]);
 
-        $userData = $request->except(['_token', 'senha_confirmacao']);
-        // ATRIBUIÇÃO MANUAL DE PADRÕES PARA CADASTRO PÚBLICO (CLIENTE)
-        $userData['tipo_usuario'] = 'cliente';
-        $userData['nivel_acesso'] = 4; // Nível para clientes
-        $userData['ativo'] = true; // Ativo por padrão
-        $userData['receber_email'] = true; // Receber emails por padrão
-        $userData['receber_sms'] = false; // Não receber SMS por padrão
+        $userData = $request->except(['_token', 'senha_confirmation']);
+
+        // Tratamento dos checkboxes de telefone (presentes no formulário)
+        $userData['telefone1_whatsapp'] = $request->has('telefone1_whatsapp');
+        $userData['telefone2_whatsapp'] = $request->has('telefone2_whatsapp');
+
+        // ATRIBUIÇÃO MANUAL DE PADRÕES PARA CADASTRO PÚBLICO (CLIENTE/PROPRIETÁRIO/LOCATÁRIO)
+        // Estes campos não vêm do formulário público, então definimos seus padrões aqui.
+        $userData['tipo_usuario'] = 'cliente'; // Padrão para cadastro público
+        $userData['nivel_acesso'] = 4;        // Nível 4 para cliente
+
+        // Status e Preferências de Contato (Definidos por padrão, não vêm do form)
+        $userData['ativo'] = true;            // Usuário ativo por padrão ao se cadastrar
+        $userData['receber_email'] = true;    // Receber emails por padrão
+        $userData['receber_sms'] = false;     // Não receber SMS por padrão
         $userData['receber_whatsapp'] = false; // Não receber WhatsApp por padrão
 
-        // Definir null para campos que não vêm do formulário público
-        $userData['telefone1'] = $request->input('telefone1', null);
-        $userData['telefone1_whatsapp'] = $request->has('telefone1_whatsapp');
-        $userData['telefone2'] = $request->input('telefone2', null);
-        $userData['telefone2_whatsapp'] = $request->has('telefone2_whatsapp');
-        $userData['endereco_id'] = $request->input('endereco_id', null); // Se for permitido no cadastro público
-        $userData['rg'] = $request->input('rg', null);
-        $userData['orgao_emissor'] = $request->input('orgao_emissor', null);
-        $userData['data_nascimento'] = $request->input('data_nascimento', null);
-        $userData['estado_civil'] = $request->input('estado_civil', null);
-        $userData['profissao'] = $request->input('profissao', null);
-        $userData['empresa'] = $request->input('empresa', null);
-        $userData['cargo'] = $request->input('cargo', null);
-        $userData['salario'] = $request->input('salario', null);
-        $userData['cep'] = $request->input('cep', null);
+        // Definir NULL para campos que foram removidos do formulário público
+        $userData['orgao_emissor'] = null;
+        $userData['estado_civil'] = null;
+        $userData['profissao'] = null;
+        $userData['empresa'] = null;
+        $userData['cargo'] = null;
+        $userData['salario'] = null;
+        $userData['cep'] = null; // CEP do usuário (não do endereço relacionado)
         $userData['creci'] = null;
         $userData['foto_url'] = null;
         $userData['matricula'] = null;
@@ -92,9 +103,10 @@ class LoginController extends Controller
         $userData['facebook'] = null;
         $userData['twitter'] = null;
         $userData['linkedin'] = null;
-        $userData['imobiliaria_id'] = null;
+        $userData['imobiliaria_id'] = null; // Clientes não se associam a imobiliária no cadastro público
 
         Usuario::create($userData);
+
         return redirect('/login')->with('success', 'Cadastro realizado com sucesso!');
     }
 
