@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request; 
 use App\Models\Endereco;
+use Exception;
+use Illuminate\Support\Facades\Http;
 
 class EnderecoController extends Controller
 {
@@ -22,56 +24,42 @@ class EnderecoController extends Controller
         return view('enderecos.index', compact('enderecos'));
     }
 
-    /*
-     * Método para exibir o formulário de criação de um novo endereço.
-     */
-    public function create() 
+      public function consultar(Request $request, $cep)
     {
-        // retorna a view 'enderecos.crate' para exibir o formulario de criação
-        return view('enderecos.create');
+        try {
+            $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return response()->json($data);
+            } else {
+                return response()->json(['error' => 'CEP não encontrado'], $response->status());
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro ao consultar o CEP'], 500);
+        }
     }
 
-    /*
-     * Método para armazenar um novo endereço no banco de dados.
-     */
+
     public function store(Request $request)
     {
-        /**
-         * $request->validate([...]): O sistema de validação do Laravel é robusto. 
-         * Ele verifica se os dados do formulário atendem às regras que você definiu. 
-         * Se não atenderem, ele redireciona de volta para o formulário com as mensagens de erro.
-         */
-       $request->validate([
-        'endereco' => 'required|string|max:255',
-        'numero' => 'nullable|string|max:10',
-        'bloco' => 'nullable|string|max:50',
-        'andar' => 'nullable|string|max:50',
-        'sala' => 'nullable|string|max:50',
-        'apartamento' => 'nullable|string|max:50',
-        'cep' => 'nullable|string|max:10',
-        'complemento' => 'nullable|string|max:255',
-        'bairro' => 'nullable|string|max:255',
-        'cidade' => 'nullable|string|max:255',
-        'estado' => 'nullable|string|max:2',
-        'localidade' => 'nullable|string|max:255',
-    ],
-        [
-            'endereco.required' => 'O logradouro é obrigatório.',
-            'endereco.string' => 'O Logradouro deve ser um Texto.',
-            'endereco.max' => 'O logradouro não pode ter mais de :max caracteres.',
+        $dados = $request->validate([
+            'cep' => 'required|string|max:10',
+            'logradouro' => 'required|string|max:255',
+            'numero' => 'required|string|max:8',
+            'bairro'   => 'required|string|max:255',
+            'localidade' => 'required|string|max:255',
+            'complemento' => 'required|string|max:255'
+
         ]);
 
-        /**
-         * Se a validação passar, cria um novo endereço Usando a model Endereco::create().
-         * $request->all() pega todos os dados do formulário.
-         * 
-         */
-        Endereco::create($request->all());
 
-        /**
-         * Após criar o endereço, redireciona o usuário de volta para a lista de endereços.
-         * Usamos  o nome da rota 'enderecos.index' para fazer isso.
-         */
-        return redirect()->route('enderecos.index')->with('success', 'Endereço criado com sucesso!');
+        try {
+            Endereco::create($dados);
+
+            return view('/imovel/index');
+        } catch (Exception $e) {
+            return "Houve um problema ao cadastrar o endereço" . $e->getMessage();
+        }
     }
 }

@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Auth; // Importa o Facde para autenticação
 use Illuminate\Validation\ValidationException; // Para tratamento de erros de validação que podemos personalizar
 use Illuminate\Support\Facades\Hash; // Importa o Facade para hash de senhas
 use App\Models\Usuario; // Importa o model Usuario
-use app\Models\Endereco;
-use app\Models\Imobiliaria;
+
 
 
 class LoginController extends Controller
