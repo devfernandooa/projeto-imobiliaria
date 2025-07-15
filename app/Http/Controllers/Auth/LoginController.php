@@ -19,7 +19,11 @@ class LoginController extends Controller
      * Exibe o formulário de login.
      * Esta rota será usada quando o Laravel redirecionar usuários não autenticados.
      * @return \Illuminate\View\View
+     * Redireciona o usuário para o dashboard apropriado com base no seu tipo e nível de acesso.
+     * @param \App\Models\Usuario $usuario
+     * @return \Illuminate\Http\RedirectResponse
      */
+
     public function showLoginForm()
     {
         return view('auth.login'); // Retorna a view de login
@@ -32,7 +36,6 @@ class LoginController extends Controller
      */
     public function showRegisterForm()
     {
-        $enderecos = \App\Models\Endereco::all();
         return view('auth.register', compact('enderecos'));
     }
 
@@ -79,22 +82,22 @@ class LoginController extends Controller
                 'email' => 'As credenciais fornecidas não correspondem aos nossos registros.',
             ]);
         }
-
+       
         // 4. Se a autenticação teve sucesso, o código continua aqui.
         // Regenera a sessão por segurança
         $request->session()->regenerate();
+        
+
+        // 5. Dados do usuario autenticado
+        $userLogin = Auth::user();
 
         // Redireciona para o dashboard
-        return redirect()->intended('/dashboards/admin');
+        return $this->redirect($userLogin);
     }
 
 
-    /**
-     * Redireciona o usuário para o dashboard apropriado com base no seu tipo e nível de acesso.
-     * @param \App\Models\Usuario $usuario
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function redirecionamentoPorTipoUsuario(Usuario $usuario)
+
+    public function redirect(Usuario $usuario)
     {
         if ($usuario->nivel_acesso == 1 && $usuario->tipo_usuario == 'administrador') {
             return redirect()->route('admin.dashboard');
