@@ -36,35 +36,95 @@ class LoginController extends Controller
      */
     public function showRegisterForm()
     {
-        return view('auth.register', compact('enderecos'));
+        return view('auth.register');
     }
 
     /**
-     * Trata o cadastro de um novo Usuário Público.
-     * Define valores padões para campos sensiveis.
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Trata o cadastro de um novo usuário a partir do formulário público minimalista.
+     *
+     * Este método executa as seguintes ações:
+     * 1. Valida os dados essenciais do formulário de registro público (nome, e-mail, senha, CPF, telefone).
+     * 2. Prepara os dados para a criação, tratando campos booleanos como 'telefone1_whatsapp'.
+     * 3. Atribui valores padrão para um novo usuário do tipo 'cliente', incluindo nível de acesso e preferências de comunicação.
+     * 4. Define explicitamente como nulos os campos que não fazem parte do formulário público.
+     * 5. Cria o novo registro de usuário no banco de dados.
+     * 6. Autentica (loga) o usuário recém-criado na aplicação.
+     * 7. Redireciona o usuário para o seu painel de controle ('cliente.dashboard') com uma mensagem de sucesso.
+     *
+     * @param  \Illuminate\Http\Request  $request A requisição HTTP contendo os dados do formulário.
+     * @return \Illuminate\Http\RedirectResponse Um redirecionamento para o painel do cliente.
+     * @throws \Illuminate\Validation\ValidationException Lançada se a validação dos dados da requisição falhar.
      */
     public function registerUser(Request $request)
     {
-        // Regras de validação para os CAMPOS QUE ESTÃO NO FORMULÁRIO PÚBLICO "QUASE COMPLETO"
-        $userData = $request->validate([
+        // Regras de validação para os CAMPOS QUE ESTÃO NO FORMULÁRIO PÚBLICO MINIMALISTA
+        $validatedData = $request->validate([
             'nome_completo' => 'required|string|max:255',
             'email' => 'required|email|unique:usuarios,email|max:150',
             'senha' => 'required|string|min:8|confirmed',
             'cpf' => 'required|string|unique:usuarios,cpf|max:45',
-            'data_nascimento' => 'nullable|date',
-            'telefone1' => 'nullable|string|max:20', // Telefone1 agora é nullable (se não for requerido no DB)
+            'telefone1' => 'required|string|max:20', // Telefone 1 agora é obrigatório (para contato mínimo)
             'telefone1_whatsapp' => 'boolean',
-            'telefone2' => 'nullable|string|max:20',
-            'telefone2_whatsapp' => 'boolean'
+            // RG, Data de Nascimento, Telefone 2, Endereço e todos os outros campos foram removidos.
+        ], [
+            // Mensagens de validação personalizadas para USUÁRIO
+            'nome_completo.required' => 'O nome completo é obrigatório.',
+            'email.required' => 'O email é obrigatório.',
+            'email.email' => 'Por favor, insira um endereço de email válido.',
+            'email.unique' => 'Este email já está cadastrado.',
+            'senha.required' => 'A senha é obrigatória.',
+            'senha.min' => 'A senha deve ter no mínimo :min caracteres.',
+            'senha.confirmed' => 'A confirmação de senha não corresponde.',
+            'cpf.required' => 'O CPF é obrigatório.',
+            'cpf.unique' => 'Este CPF já está cadastrado.',
+            'telefone1.required' => 'O telefone 1 é obrigatório.',
         ]);
 
-        $userData = $request->except(['_token', 'senha_confirmation']);
+        
+        // Agora o usuário pode ser criado sem um endereco_id inicial, será null no DB.
 
-        Usuario::create($userData);
+        $userData = $validatedData; // Começa com os dados JÁ VALIDADOS.
 
-        return redirect('/login')->with('success', 'Cadastro realizado com sucesso!');
+        // TRATAMENTO DOS CHECKBOXES BOOLEANOS
+        $userData['telefone1_whatsapp'] = $request->has('telefone1_whatsapp');
+        // 'telefone2_whatsapp' foi removido do form, então não precisa tratar aqui.
+
+        // ATRIBUIÇÃO MANUAL DE PADRÕES PARA CADASTRO PÚBLICO (CLIENTE/PROPRIETÁRIO/LOCATÁRIO)
+        $userData['tipo_usuario'] = 'cliente';
+        $userData['nivel_acesso'] = 4;
+        $userData['ativo'] = true;
+        $userData['receber_email'] = true;
+        $userData['receber_sms'] = false;
+        $userData['receber_whatsapp'] = false;
+
+        // Definir NULL para CAMPOS QUE FORAM REMOVIDOS DO FORMULÁRIO PÚBLICO E NÃO SÃO TRATADOS
+        $userData['rg'] = null;
+        $userData['orgao_emissor'] = null;
+        $userData['data_nascimento'] = null;
+        $userData['estado_civil'] = null;
+        $userData['profissao'] = null;
+        $userData['empresa'] = null;
+        $userData['cargo'] = null;
+        $userData['salario'] = null;
+        $userData['cep'] = null; // O CEP do usuário não vem mais do form público
+        $userData['creci'] = null;
+        $userData['foto_url'] = null;
+        $userData['matricula'] = null;
+        $userData['instagram'] = null;
+        $userData['facebook'] = null;
+        $userData['twitter'] = null;
+        $userData['linkedin'] = null;
+        $userData['imobiliaria_id'] = null;
+
+        // Vinculação de Endereço (agora null, pois não é criado neste fluxo)
+        $userData['endereco_id'] = null; // <--- Endereco_id agora é null
+
+        $novoUsuario = Usuario::create($userData); // Cria o usuário
+
+        // LOGAR O USUÁRIO AUTOMATICAMENTE APÓS O CADASTRO E REDIRECIONAR
+        Auth::login($novoUsuario);
+
+        return redirect()->route('cliente.dashboard')->with('success', 'Cadastro realizado com sucesso! Bem-vindo!');
     }
 
     public function authenticate(Request $request)
@@ -82,11 +142,11 @@ class LoginController extends Controller
                 'email' => 'As credenciais fornecidas não correspondem aos nossos registros.',
             ]);
         }
-       
+
         // 4. Se a autenticação teve sucesso, o código continua aqui.
         // Regenera a sessão por segurança
         $request->session()->regenerate();
-        
+
 
         // 5. Dados do usuario autenticado
         $userLogin = Auth::user();
@@ -101,9 +161,9 @@ class LoginController extends Controller
     {
         if ($usuario->nivel_acesso == 1 && $usuario->tipo_usuario == 'administrador') {
             return redirect()->route('admin.dashboard');
-        } elseif ($usuario->nivel_acesso == 2 && $usuario->tipo_usuario == 'corretor') {
+        } else if ($usuario->nivel_acesso == 2 && $usuario->tipo_usuario == 'corretor') {
             return redirect()->route('corretor.dashboard');
-        } elseif ($usuario->nivel_acesso == 3 && $usuario->tipo_usuario == 'funcionario') {
+        } else if ($usuario->nivel_acesso == 3 && $usuario->tipo_usuario == 'funcionario') {
             return redirect()->route('funcionario.dashboard');
         } else {
             return redirect()->route('cliente.dashboard');

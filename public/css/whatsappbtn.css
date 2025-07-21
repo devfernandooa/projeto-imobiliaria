@@ -1,0 +1,62 @@
+/* public/css/whatsapp.css */
+
+.whatsapp-float {
+    position: fixed;
+    width: 60px; /* Largura do botão */
+    height: 60px; /* Altura do botão */
+    bottom: 40px; /* Distância do fundo da página */
+    right: 40px; /* Distância da direita da página */
+    background-color: #25d366; /* Cor de fundo do WhatsApp */
+    color: #FFF;
+    border-radius: 50px; /* Transforma em círculo */
+    text-align: center;
+    font-size: 30px;
+    box-shadow: 2px 2px 3px #999; /* Sombra sutil */
+    z-index: 1000; /* Garante que o botão fique acima de outros elementos */
+    display: flex; /* Para centralizar o ícone */
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    transition: transform 0.3s ease-in-out; /* Adiciona transição para o hover */
+
+    /* Animação de pulso */
+    animation: whatsapp-pulse 2s infinite; /* Nome da animação, duração e repetição */
+}
+
+.whatsapp-float img {
+    width: 60px; /* Tamanho do ícone dentro do botão */
+    height: 60px;
+    vertical-align: middle; /* Alinhamento vertical da imagem */
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1); /* Efeito de zoom ao passar o mouse */
+    animation: none; /* Desativa a pulsação ao passar o mouse, opcional */
+}
+
+/* Definição da animação de pulso */
+@keyframes whatsapp-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); /* Cor da sombra do pulso */
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); /* Expande a sombra */
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); /* Reseta a sombra */
+    }
+}
+
+/* Opcional: Para telas menores */
+@media (max-width: 768px) {
+    .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .whatsapp-float img {
+        width: 30px;
+        height: 30px;
+    }
+}

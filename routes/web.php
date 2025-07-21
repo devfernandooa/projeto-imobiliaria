@@ -31,8 +31,6 @@ Route::get('/', function () {
     // Rotas para cadastro público, essa rota vai exibiro formulário de cadastro público
     Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [LoginController::class, 'registerUser'])->name('register.store');
-
-
  });
 
 
@@ -110,3 +108,5 @@ Route::prefix('imobiliarias')->group(function () {
     Route::post('/', [ImobiliariaController::class, 'store'])->name('imobiliarias.store');
     // Adicione aqui as rotas show, edit, update, destroy para Imobiliarias no futuro
 });
+
+// Rota para o perfil do usuário autenticado
