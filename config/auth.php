@@ -12,7 +12,11 @@ return [
     | as required, but they're a perfect start for most applications.
     |
     */
-
+    /**
+     * 'provider' => 'usuarios': Indica que o guard web usará o provedor usuarios.
+     * usuarios' => [...]: Define o provedor.
+     * 'model' => App\Models\Usuario::class: Aponta para a sua Model Usuario.
+     */
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
@@ -38,7 +42,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'usuarios',
         ],
     ],
 
@@ -60,9 +64,10 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'usuarios' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => App\Models\Usuario::class,
+            'password' => 'senha',
         ],
 
         // 'users' => [
@@ -92,10 +97,11 @@ return [
 
     'passwords' => [
         'users' => [
-            'provider' => 'users',
+            'provider' => 'usuarios',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
+            'password' => 'senha', // AQUI: Informa ao Laravel que o campo de senha no seu DB é 'senha' 
         ],
     ],
 

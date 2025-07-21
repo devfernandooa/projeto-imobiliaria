@@ -66,15 +66,16 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
+        // Regras de validação para os campos que estão NO FORMULÁRIO DO ADMINISTRADOR
         $request->validate([
             'nome_completo' => 'required|string|max:255',
             'email' => 'required|email|unique:usuarios,email|max:150',
-            'senha' => 'required|string|min:8|confirmed', // 'confirmed' exige 'senha_confirmation' no formulário
-            'telefone1' => 'nullable|string|max:20', // Agora é nullable no seu BD
-            'telefone1_whatsapp' => 'boolean', // Mapeia para TINYINT(1)
+            'senha' => 'required|string|min:8|confirmed',
+            'telefone1' => 'nullable|string|max:20',
+            'telefone1_whatsapp' => 'boolean',
             'telefone2' => 'nullable|string|max:20',
             'telefone2_whatsapp' => 'boolean',
-            'endereco_id' => 'nullable|exists:enderecos,id', // Pode ser nullable no BD, mas verifica se ID existe
+            'endereco_id' => 'nullable|exists:enderecos,id',
             'cpf' => 'required|string|unique:usuarios,cpf|max:45',
             'rg' => 'nullable|string|max:45',
             'orgao_emissor' => 'nullable|string|max:45',
@@ -84,12 +85,14 @@ class UsuarioController extends Controller
             'empresa' => 'nullable|string|max:100',
             'cargo' => 'nullable|string|max:100',
             'salario' => 'nullable|string|max:20',
-            'cep' => 'nullable|string|max:10', // CEP do USUÁRIO, não do endereço de relacionamento
+            'cep' => 'nullable|string|max:10',
             'creci' => 'nullable|string|unique:usuarios,creci|max:50',
             'foto_url' => 'nullable|url|max:255',
             'matricula' => 'nullable|string|unique:usuarios,matricula|max:50',
-            'tipo_usuario' => 'required|in:administrador,corretor,cliente,proprietario,locatario,funcionario', // Valores ENUM exatos
-            //'nivel_acesso' => 'required|integer', // NOT NULL DEFAULT '1' no BD
+            'tipo_usuario' => 'required|in:administrador,corretor,cliente,proprietario,locatario,funcionario',
+            // 'nivel_acesso' não é mais validado como 'required' aqui, pois será FORÇADO pela lógica.
+            // Mas pode ser 'nullable|integer' se o campo ainda existir no form e se for necessário validá-lo como número.
+            'nivel_acesso' => 'nullable|integer', 
             'ativo' => 'boolean',
             'receber_email' => 'boolean',
             'receber_sms' => 'boolean',
@@ -98,9 +101,9 @@ class UsuarioController extends Controller
             'facebook' => 'nullable|string|max:255',
             'twitter' => 'nullable|string|max:255',
             'linkedin' => 'nullable|string|max:255',
-            'imobiliaria_id' => 'nullable|exists:imobiliarias,id', // Pode ser nullable no banco de dados
+            'imobiliaria_id' => 'nullable|exists:imobiliarias,id',
         ], [
-            // Mensagens de validação personalizadas para clareza ao usuário
+            // Mensagens de validação personalizadas
             'nome_completo.required' => 'O nome completo é obrigatório.',
             'email.required' => 'O email é obrigatório.',
             'email.email' => 'Por favor, insira um endereço de email válido.',
@@ -108,7 +111,6 @@ class UsuarioController extends Controller
             'senha.required' => 'A senha é obrigatória.',
             'senha.min' => 'A senha deve ter no mínimo :min caracteres.',
             'senha.confirmed' => 'A confirmação de senha não corresponde.',
-            'telefone1.required' => 'Pelo menos um telefone é obrigatório.', // Se for REQUIRED no bnco de dados ou regra de negócio
             'cpf.required' => 'O CPF é obrigatório.',
             'cpf.unique' => 'Este CPF já está cadastrado.',
             'creci.unique' => 'Este CRECI já está cadastrado.',
@@ -117,24 +119,12 @@ class UsuarioController extends Controller
             'imobiliaria_id.exists' => 'A imobiliária selecionada não é válida.',
             'tipo_usuario.required' => 'O tipo de usuário é obrigatório.',
             'tipo_usuario.in' => 'O tipo de usuário selecionado é inválido.',
-            'nivel_acesso.required' => 'O nível de acesso é obrigatório.',
+            
         ]);
 
-        /**
-         * Recupera todos os dados do formulário da requisição, exceto os campos '_token' e 'senha_confirmation'.
-         * Isso é útil para excluir campos sensíveis ou desnecessários antes de processar ou armazenar os dados do usuário.
-         *
-         * @var array $userData Os dados filtrados do usuário.
-         */
         $userData = $request->except(['_token', 'senha_confirmation']);
 
-        /**
-         * Tratamento dos checkbox
-         * $request->has('campo): Retorna 'true' SE o chekbox foi marcado (enviou '1'), false caso contário
-         * O cast 'boolean' na Model encarrega-se de converter para 0 ou 1 no banco de dados
-         * O código para $userData['campo_boolean'] = $request->has('campo_boolean'); é CORRETO e necessário para checkboxes, 
-         * pois se não forem marcados, eles não são enviados no request, e has() os trata como false.
-         */
+        // Tratamento dos checkboxes (todos os checkboxes do form)
         $userData['telefone1_whatsapp'] = $request->has('telefone1_whatsapp');
         $userData['telefone2_whatsapp'] = $request->has('telefone2_whatsapp');
         $userData['ativo'] = $request->has('ativo');
@@ -142,46 +132,57 @@ class UsuarioController extends Controller
         $userData['receber_sms'] = $request->has('receber_sms');
         $userData['receber_whatsapp'] = $request->has('receber_whatsapp');
 
-        // LÓGICA DE CONTROLE DE NÍVEL DE ACESSO COM BASE NO TIPO DE USUÁRIO
-        $tipoUsuarioSelecionado  = $request->input('tipo_usuario');
-        $nivenivelAcessoAtribuido = 0;
+        // LÓGICA PARA FORÇAR O NÍVEL DE ACESSO COM BASE NO TIPO DE USUÁRIO
+        $tipoUsuarioAtribuido = $request->input('tipo_usuario'); // Pega o tipo do formulário
+        $nivelAcessoCalculado = 0; // Inicializa
 
-        switch ($tipoUsuarioSelecionado) {
+        switch ($tipoUsuarioAtribuido) {
             case 'administrador':
-                $nivenivelAcessoAtribuido = 1; 
+                $nivelAcessoCalculado = 1; // Nível fixo para administrador
                 break;
             case 'corretor':
-                $nivenivelAcessoAtribuido = 2;
+                $nivelAcessoCalculado = 2; // Nível fixo para corretor
                 break;
             case 'funcionario':
-                $nivenivelAcessoAtribuido = 3;
+                $nivelAcessoCalculado = 3; // Nível fixo para funcionário
                 break;
             case 'cliente':
             case 'proprietario':
             case 'locatario':
-            default: // Caso algum valor inesperado (garantido pelo 'in' da validação)
-                $nivenivelAcessoAtribuido = 4; // Nível padrão para usuários básicos
-                break;           
-
+            default:
+                $nivelAcessoCalculado = 4; // Nível fixo para clientes e outros básicos
+                break;
         }
 
-        //Cria a instÂncia do usuário, mas ATRIBUIR MANUALMENTE os campos $guardade
+        // Criar uma nova instância do usuário
         $usuario = new Usuario();
-        $usuario->fill($userData); // Preenche os campos que NÃO estão no $guarded
 
-        /*
-         * Fazendo a ATRIBUIÇÃO MANUAL DO CAMPOS '$guarded' que vem do formuçário
-         * tipo_usuario vem do formulkário, ou atribuimos 
-         */
-        $usuario->tipo_usuario = $tipoUsuarioSelecionado;
-        $usuario->nivel_acesso = $nivenivelAcessoAtribuido; // nivel_acesso é definido PELA LÓGICA, sobrescrevendo qualquer coisa do formulário.
-        $usuario->ativo = $request->input('ativo');
-        $usuario->imobiliaria_id = $request->input('imobiliaria_id'); // Imobiliaria vem do formulário
+        // Preencher os campos que SÃO fillable (todos que NÃO estão no $guarded)
+        // O $request->except(['_token', 'senha_confirmation']) já contém a maioria dos campos.
+        $fillableData = $request->except(['_token', 'senha_confirmation']);
 
+        // Tratamento dos checkboxes para o $fillableData
+        $fillableData['telefone1_whatsapp'] = $request->has('telefone1_whatsapp');
+        $fillableData['telefone2_whatsapp'] = $request->has('telefone2_whatsapp');
+        $fillableData['receber_email'] = $request->has('receber_email');
+        $fillableData['receber_sms'] = $request->has('receber_sms');
+        $fillableData['receber_whatsapp'] = $request->has('receber_whatsapp');
+
+        $usuario->fill($fillableData); // Preenche os campos que o fillable permite.
+
+        // ATRIBUIR MANUALMENTE OS CAMPOS QUE ESTÃO NO $GUARDED (e vêm do formulário)
+        $usuario->tipo_usuario = $tipoUsuarioAtribuido; // Usa o valor já processado
+        $usuario->nivel_acesso = $nivelAcessoCalculado; // Usa o valor já processado
+        $usuario->ativo = $request->has('ativo'); // Atribuir manualmente, pois 'ativo' está no $guarded
+        $usuario->imobiliaria_id = $request->input('imobiliaria_id'); // Atribuir manualmente, pois 'imobiliaria_id' está no $guarded
+
+        // Salvar o usuário no banco de dados
         $usuario->save();
-       
 
-        // Redireciona para a lista de usuários com uma mensagem de sucesso (flash message)
         return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
     }
 }
+
+
+    
+

@@ -19,7 +19,7 @@ class ImobiliariaSeeder extends Seeder
 
         // Recupera alguns IDs de endereço para associar às imobiliárias
         $endereco1 = Endereco::first(); // Pega o primeiro endereço que foi criado pelo EnderecoSeeder
-        $endereco2 = Endereco::skip(1)->first(); // Pega o segundo
+        //$endereco2 = Endereco::skip(1)->first(); // Pega o segundo
 
         Imobiliaria::create([
             'nome_fantasia' => 'Imob Prime',
@@ -32,17 +32,17 @@ class ImobiliariaSeeder extends Seeder
             'logo_url' => 'https://example.com/logo-prime.png',
         ]);
 
-        Imobiliaria::create([
-            'nome_fantasia' => 'Lar Doce Lar Imóveis',
-            'razao_social' => 'Lar Doce Lar Imoveis S/A',
-            'cnpj' => '11.111.111/0001-11',
-            'endereco_id' => $endereco2 ? $endereco2->id : null, // Associa ao segundo endereço
-            'telefone' => '(75) 3333-5555',
-            'email' => 'contato@lardocelar.com',
-            'creci' => 'PJ67890',
-            'logo_url' => 'https://example.com/logo-lar.png',
-        ]);
+        // Imobiliaria::create([
+        //     'nome_fantasia' => 'Lar Doce Lar Imóveis',
+        //     'razao_social' => 'Lar Doce Lar Imoveis S/A',
+        //     'cnpj' => '11.111.111/0001-11',
+        //     'endereco_id' => $endereco2 ? $endereco2->id : null, // Associa ao segundo endereço
+        //     'telefone' => '(75) 3333-5555',
+        //     'email' => 'contato@lardocelar.com',
+        //     'creci' => 'PJ67890',
+        //     'logo_url' => 'https://example.com/logo-lar.png',
+        // ]);
 
-        $this->command->info('Imobiliárias criadas com sucesso!');
+        $this->command->info('Imobiliária criada com sucesso!');
     }
 }
