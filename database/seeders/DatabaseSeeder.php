@@ -17,8 +17,9 @@ class DatabaseSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         $this->call([
-            EnderecoSeeder::class,
-            ImobiliariaSeeder::class,
+            //EnderecoSeeder::class,
+            //ImobiliariaSeeder::class,
+            UsuarioSeeder::class
             // Adicione outros seeders aqui. A ordem é importante para dependências!
             // Por exemplo, UsuarioSeeder::class viria depois de Endereco e Imobiliaria
             // ImovelSeeder::class viria depois de Endereco
