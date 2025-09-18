@@ -96,6 +96,18 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index'])->name('usuarios.index');
     Route::get('/criar', [UsuarioController::class, 'create'])->name('usuarios.create');
     Route::post('/', [UsuarioController::class, 'store'])->name('usuarios.store');
+
+    // ROTA PARA VISUALIZAR DETALHES DE UM USUÁRIO ESPECÍFICO
+    Route::get('/{usuario}', [UsuarioController::class, 'show'])->name('usuarios.show');
+
+    // Rota para exibir o formulário de edição de um usuário específico
+    Route::get('/{usuario}/editar', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+    // Rota para Atualizar as informações de um usuário expecifico (Recebe o ID do usuário a ser atualizado pelo método PUT)
+    Route::put('/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
+
+    // Rota para excluir um usuário específico (Recebe o ID do usuário a ser excluído pelo método DELETE)
+    Route::delete('/{usuario}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+
 });
 
 /**

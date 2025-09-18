@@ -39,7 +39,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Trata o cadastro de um novo usuário a partir do formulário público minimalista.
+     * Trata o cadastro de um novo usuário a partir do formulário público (simplificado).
      *
      * Este método executa as seguintes ações:
      * 1. Valida os dados essenciais do formulário de registro público (nome, e-mail, senha, CPF, telefone).
@@ -56,7 +56,7 @@ class LoginController extends Controller
      */
     public function registerUser(Request $request)
     {
-        // Regras de validação para os CAMPOS QUE ESTÃO NO FORMULÁRIO PÚBLICO MINIMALISTA
+        // Regras de validação para os CAMPOS QUE ESTÃO NO FORMULÁRIO PÚBLICO 
         $validatedData = $request->validate([
             'nome_completo' => 'required|string|max:255',
             'email' => 'required|email|unique:usuarios,email|max:150',

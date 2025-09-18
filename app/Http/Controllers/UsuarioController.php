@@ -92,7 +92,7 @@ class UsuarioController extends Controller
             'tipo_usuario' => 'required|in:administrador,corretor,cliente,proprietario,locatario,funcionario',
             // 'nivel_acesso' não é mais validado como 'required' aqui, pois será FORÇADO pela lógica.
             // Mas pode ser 'nullable|integer' se o campo ainda existir no form e se for necessário validá-lo como número.
-            'nivel_acesso' => 'nullable|integer', 
+            'nivel_acesso' => 'nullable|integer',
             'ativo' => 'boolean',
             'receber_email' => 'boolean',
             'receber_sms' => 'boolean',
@@ -119,7 +119,7 @@ class UsuarioController extends Controller
             'imobiliaria_id.exists' => 'A imobiliária selecionada não é válida.',
             'tipo_usuario.required' => 'O tipo de usuário é obrigatório.',
             'tipo_usuario.in' => 'O tipo de usuário selecionado é inválido.',
-            
+
         ]);
 
         $userData = $request->except(['_token', 'senha_confirmation']);
@@ -181,8 +181,148 @@ class UsuarioController extends Controller
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
     }
+
+    /**
+     * Exibe os detalhes de um usuário específico.
+     *
+     * Recupera um usuário pelo seu ID, incluindo seus endereços e imobiliárias relacionados,
+     * e passa os dados para a view 'usuarios.show' para exibição.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function show(\App\Models\Usuario $usuario)
+    {
+        // Para exibir os detalhes de endereço e imobiliária,
+        // carregamos os relacionamentos (eager-loading)
+        $usuario->load(['endereco', 'imobiliaria']);
+
+        // Retorna a view 'usuarios.show', passando a instância do usuário.
+        return view('usuarios.show', compact('usuario'));
+    }
+
+    /**
+     * Exibe o formulário de edição para um usuário específico.
+     *
+     * Recupera o usuário pelo seu ID, juntamente com todos os endereços e imobiliárias disponíveis
+     * para popular os campos de seleção (dropdowns) no formulário de edição. Em seguida, retorna a view
+     * 'usuarios.edit' passando o usuário, endereços e imobiliárias como variáveis.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function edit(Usuario $usuario)
+    {
+        // Buscar todos os endereços e imobiliárias para popular os dropdowns
+        $enderecos = Endereco::all();
+        $imobiliarias = Imobiliaria::all();
+
+        // Retorna a view 'usuarios.edit', passando o usuário, endereços e imobiliárias
+        return view('usuarios.edit', compact('usuario', 'enderecos', 'imobiliarias'));
+    }
+
+    /**
+     * Atualiza as informações de um usuário específico no banco de dados.
+     *
+     * Valida os dados recebidos da requisição para atualizar um usuário existente, garantindo que todos os campos obrigatórios
+     * estejam presentes e corretamente formatados. Mensagens de validação personalizadas são fornecidas para maior clareza.
+     *
+     * As regras de validação incluem:
+     * - Campos obrigatórios: nome_completo, email, cpf, tipo_usuario, nivel_acesso
+     * - Restrições de unicidade: email, cpf, creci, matricula (ignorando o usuário atual)
+     * - Verificações de formato e tamanho para strings, emails, datas e URLs
+     * - Verificações booleanas para diversos flags (telefone1_whatsapp, telefone2_whatsapp, ativo, receber_email, receber_sms, receber_whatsapp)
+     * - Verificação de existência para entidades relacionadas (endereco_id, imobiliaria_id)
+     * - Validação ENUM para tipo_usuario
+     * - Campos opcionais (nullable) para informações adicionais do usuário
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Usuario $usuario)
+    {
+        // Regras de validação para os campos que estão NO formulario do ADMINISTRADOR
+        $validateData = $request->validate([
+            'nome_completo' => 'required|string|max:255',
+            'email' => 'required|email|max:150|unique:usuarios,email,' . $usuario->id,
+            'telefone1' => 'nullable|string|max:20',
+            'telefone1_whatsapp' => 'boolean',
+            'telefone2' => 'nullable|string|max:20',
+            'telefone2_whatsapp' => 'boolean',
+            'endereco_id' => 'nullable|exists:enderecos,id',
+            'cpf' => 'required|string|max:45|unique:usuarios,cpf,' . $usuario->id,
+            'rg' => 'nullable|string|max:45',
+            'orgao_emissor' => 'nullable|string|max:45',
+            'data_nascimento' => 'nullable|date',
+            'estado_civil' => 'nullable|string|max:20',
+            'profissao' => 'nullable|string|max:100',
+            'empresa' => 'nullable|string|max:100',
+            'cargo' => 'nullable|string|max:100',
+            'salario' => 'nullable|string|max:20',
+            'cep' => 'nullable|string|max:10',
+            'creci' => 'nullable|string|max:50|unique:usuarios,creci,' . $usuario->id,
+            'foto_url' => 'nullable|url|max:255',
+            'matricula' => 'nullable|string|max:50|unique:usuarios,matricula,' . $usuario->id,
+            'tipo_usuario' => 'required|in:administrador,corretor,cliente,proprietario,locatario,funcionario',
+            // 'nivel_acesso' não é mais validado como 'required' aqui, pois será FORÇADO pela lógica.
+            // Mas pode ser 'nullable|integer' se o campo ainda existir no form e se for necessário validá-lo como número.
+            'nivel_acesso' => 'nullable|integer',
+            'ativo' => 'boolean',
+            'receber_email' => 'boolean',
+            'receber_sms' => 'boolean',
+            'receber_whatsapp' => 'boolean',
+            'instagram' => 'nullable|string|max:255',
+            'facebook' => 'nullable|string|max:255',
+            'twitter' => 'nullable|string|max:255',
+            'linkedin' => 'nullable|string|max:255',
+            // A imobiliária só pode ser alterada
+        ]);
+        // Tratamento dos checkboxes (todos os checkboxes do form)
+        $userData = $validateData;
+        $userData['telefone1_whatsapp'] = $request->has('telefone1_whatsapp');
+        $userData['telefone2_whatsapp'] = $request->has('telefone2_whatsapp');
+        $userData['ativo'] = $request->has('ativo');
+        $userData['receber_email'] = $request->has('receber_email');
+        $userData['receber_sms'] = $request->has('receber_sms');
+        $userData['receber_whatsapp'] = $request->has('receber_whatsapp');
+        /*
+         * Lógica para forçar o nivel_acesso com base no tipo_usuario (mesma do store)
+         * ... (seu código switch aqui, se você quiser forçar o nível na edição) ...
+         * Se você quer que o administrador tenha controle total sobre o nivel_acesso, remova a lógica switch
+         * Atualiza o usuário no banco de dados.
+         * O método 'fill' preenche os campos que são 'fillable'.
+         * O 'save' persistirá as mudanças.
+         */
+        $usuario->fill($userData);
+        
+        // Se a senha for fornecida no fomulário, vai ser hashiada e salvada
+        if ($request->filled('senha')){
+            $usuario->senha = $request->input('senha');
+        }
+
+        $usuario->save();
+
+        return redirect()->route('usuarios.index')->with('success', 'Usuario atualizado com sucesso!');
+
+    }
+
+
+    /**
+     * Remove um usuário específico do banco de dados.
+     *
+     * Exclui o usuário identificado pelo ID fornecido. Após a exclusão, redireciona para a lista de usuários
+     * com uma mensagem de sucesso.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+
+    public function destroy(Usuario $usuario) 
+    {
+        // Encontra o usuario pelo ID e o exclui
+        $usuario->delete();
+        // Redireciona para a lista de usuários com uma mensagem de sucesso
+        return redirect()->route('usuarios.index')->with('success', 'Usuário excluído com sucesso!');
+    }
 }
-
-
-    
-
