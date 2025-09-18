@@ -306,4 +306,23 @@ class UsuarioController extends Controller
         return redirect()->route('usuarios.index')->with('success', 'Usuario atualizado com sucesso!');
 
     }
+
+
+    /**
+     * Remove um usuário específico do banco de dados.
+     *
+     * Exclui o usuário identificado pelo ID fornecido. Após a exclusão, redireciona para a lista de usuários
+     * com uma mensagem de sucesso.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+
+    public function destroy(Usuario $usuario) 
+    {
+        // Encontra o usuario pelo ID e o exclui
+        $usuario->delete();
+        // Redireciona para a lista de usuários com uma mensagem de sucesso
+        return redirect()->route('usuarios.index')->with('success', 'Usuário excluído com sucesso!');
+    }
 }

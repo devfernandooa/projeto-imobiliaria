@@ -105,6 +105,9 @@ Route::prefix('usuarios')->group(function () {
     // Rota para Atualizar as informações de um usuário expecifico (Recebe o ID do usuário a ser atualizado pelo método PUT)
     Route::put('/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
 
+    // Rota para excluir um usuário específico (Recebe o ID do usuário a ser excluído pelo método DELETE)
+    Route::delete('/{usuario}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+
 });
 
 /**

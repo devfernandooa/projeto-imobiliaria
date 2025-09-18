@@ -160,7 +160,7 @@
                                     </ul>
                                 </div>
                             </li>
-                        @endcan--}}
+                        @endcan --}}
 
                         {{-- SUB-MENU: Gerenciar Imóveis (Admin e Corretor) --}}
                         @canany(['access-admin-dashboard', 'access-corretor-dashboard'])
@@ -223,12 +223,11 @@
         </div>
 
     </div> {{-- Fechamento do Sidebar (Menu Lateral) --}}
-</div>
+    </div>
 
     {{-- ... (restante do código do layout/dashboard.blade.php) ... --}}
-    <main class="container mt-6 pt-3">
-        <div class="container align-items-start">
-
+    <main class="row" style="margin: 72px 0 0 2px;">
+        <div class="">
             {{-- Título do Dashboard --}}
             {{-- O CONTEÚDO ESPECÍFICO DE CADA DASHBOARD SERÁ INJETADO AQUI --}}
             @yield('content')
