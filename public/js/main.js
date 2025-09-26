@@ -119,3 +119,60 @@ if (confirmDeleteModal) {
     });
 }
 // --- Fim: Lógica para Modal de Confirmação de Exclusão ---
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+
+    // --- Início: Lógica para autopreenchimento de endereço com ViaCEP ---
+    const cepInput = document.getElementById('cep');
+    const logradouroInput = document.getElementById('logradouro');
+    const bairroInput = document.getElementById('bairro');
+    const cidadeInput = document.getElementById('cidade');
+    const estadoInput = document.getElementById('uf'); // Use o ID do input de UF
+
+    if (cepInput) {
+        cepInput.addEventListener('blur', function() {
+            let cep = this.value.replace(/\D/g, '');
+
+            if (cep.length === 8) {
+                const url = `https://viacep.com.br/ws/${cep}/json/`;
+
+                // Adiciona um placeholder para o usuário enquanto a requisição é feita
+                logradouroInput.value = '...';
+                bairroInput.value = '...';
+                cidadeInput.value = '...';
+                estadoInput.value = '...';
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.erro) {
+                            alert('CEP não encontrado ou inválido.');
+                            // Limpa os campos em caso de erro
+                            logradouroInput.value = '';
+                            bairroInput.value = '';
+                            cidadeInput.value = '';
+                            estadoInput.value = '';
+                        } else {
+                            logradouroInput.value = data.logradouro || '';
+                            bairroInput.value = data.bairro || '';
+                            cidadeInput.value = data.localidade || '';
+                            estadoInput.value = data.uf || '';
+                            document.getElementById('numero').focus();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao buscar CEP:', error);
+                    });
+            } else {
+                // Limpa os campos se o CEP for inválido
+                logradouroInput.value = '';
+                bairroInput.value = '';
+                cidadeInput.value = '';
+                estadoInput.value = '';
+            }
+        });
+    }
+    // --- Fim: Lógica para autopreenchimento de endereço com ViaCEP ---
+
+});

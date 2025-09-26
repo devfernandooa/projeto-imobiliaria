@@ -22,6 +22,13 @@
                 </div>
             @endif
 
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <div class="table-responsive">
                 <table class="table table-striped table-hover align-middle">
                     <thead>
@@ -58,8 +65,8 @@
                                             title="Ver Detalhes">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('usuarios.edit', $usuario) }}" class="btn btn-warning btn-sm me-1"
-                                            title="Editar Usuário">
+                                        <a href="{{ route('usuarios.edit', $usuario) }}"
+                                            class="btn btn-warning btn-sm me-1" title="Editar Usuário">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="btn btn-danger btn-sm" title="Excluir Usuário"
@@ -84,14 +91,15 @@
                                                 <h5 class="text-center fw-semibold text-primary">
                                                     {{ $usuario->nome_completo }}?</h5>
                                                 <p class="mt-2 fs-6"><svg xmlns="http://www.w3.org/2000/svg" width="32"
-                                                        height="32" fill="currentColor" class="bi bi-exclamation-octagon me-2 text-danger mt-2"
+                                                        height="32" fill="currentColor"
+                                                        class="bi bi-exclamation-octagon me-2 text-danger mt-2"
                                                         viewBox="0 0 16 16">
                                                         <path
                                                             d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1z" />
                                                         <path
                                                             d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
                                                     </svg></p>
-                                                    <span class="text-danger">Essa ação não pode ser desfeita.</span>
+                                                <span class="text-danger">Essa ação não pode ser desfeita.</span>
 
                                             </div>
                                             <div class="modal-footer">

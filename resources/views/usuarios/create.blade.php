@@ -30,64 +30,66 @@
                         <legend class="float-none w-auto px-3 fs-5 text-secondary">Informações Pessoais</legend>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="nome_completo" class="form-label">Nome Completo <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="nome_completo"
-                                    name="nome_completo" required value="{{ old('nome_completo') }}">
+                                <label for="nome_completo" class="form-label">Nome Completo <span
+                                        class="text-danger">*</span></label>
+                                <input type="text"
+                                    class="form-control form-control-sm @error('nome_completo') is-invalid @enderror"
+                                    id="nome_completo" name="nome_completo" required value="{{ old('nome_completo') }}">
                                 @error('nome_completo')
-                                    <div class="text-danger small">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control form-control-sm" id="email" name="email"
-                                    required value="{{ old('email') }}">
+                                <input type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
+                                    id="email" name="email" required value="{{ old('email') }}">
                                 @error('email')
-                                    <div class="text-danger small">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-3 col-lg-2">
                                 <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="cpf" name="cpf"
-                                    maxlength="14" required value="{{ old('cpf') }}">
+                                <input type="text" class="form-control form-control-sm @error('cpf') is-invalid @enderror"
+                                    id="cpf" name="cpf" maxlength="14" required value="{{ old('cpf') }}">
                                 @error('cpf')
-                                    <div class="text-danger small">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-3 col-lg-2">
                                 <label for="rg" class="form-label">RG</label>
-                                <input type="text" class="form-control form-control-sm" id="rg" name="rg"
-                                    maxlength="12" value="{{ old('rg') }}">
+                                <input type="text" class="form-control form-control-sm @error('rg') is-invalid @enderror"
+                                    id="rg" name="rg" maxlength="12" value="{{ old('rg') }}">
                                 @error('rg')
-                                    <div class="text-danger small">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-3 col-lg-2">
                                 <label for="orgao_emissor" class="form-label">Órgão Emissor</label>
-                                <input type="text" class="form-control form-control-sm" id="orgao_emissor"
-                                    name="orgao_emissor" maxlength="10" value="{{ old('orgao_emissor') }}">
+                                <input type="text" class="form-control form-control-sm @error('orgao_emissor') is-invalid @enderror"
+                                    id="orgao_emissor" name="orgao_emissor" maxlength="10" value="{{ old('orgao_emissor') }}">
                                 @error('orgao_emissor')
-                                    <div class="text-danger small">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-3 col-lg-2">
                                 <label for="data_nascimento" class="form-label">Nascimento</label>
-                                <input type="date" class="form-control form-control-sm" id="data_nascimento"
+                                <input type="date" class="form-control form-control-sm @error('data_nascimento') is-invalid @enderror" id="data_nascimento"
                                     name="data_nascimento" value="{{ old('data_nascimento') }}">
                                 @error('data_nascimento')
-                                    <div class="text-danger small">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-4 col-lg-2">
                                 <label for="estado_civil" class="form-label">Estado Civil</label>
-                                <input type="text" class="form-control form-control-sm" id="estado_civil" name="estado_civil"
-                                    maxlength="20" value="{{ old('estado_civil') }}">
+                                <input type="text" class="form-control form-control-sm @error('estado_civil') is-invalid @enderror" id="estado_civil"
+                                    name="estado_civil" maxlength="20" value="{{ old('estado_civil') }}">
                                 @error('estado_civil')
-                                    <div class="text-danger small">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-4 col-lg-2">
                                 <label for="profissao" class="form-label">Profissão</label>
-                                <input type="text" class="form-control form-control-sm" id="profissao" name="profissao"
+                                <input type="text" class="form-control form-control-sm @error('profissao') is-invalid @enderror" id="profissao"
                                     maxlength="30" value="{{ old('profissao') }}">
                                 @error('profissao')
                                     <div class="text-danger small">{{ $message }}</div>
@@ -134,8 +136,8 @@
                             </div>
                             <div class="col-md-8 col-lg-5">
                                 <label for="logradouro" class="form-label">Logradouro</label>
-                                <input type="text" class="form-control form-control-sm" id="logradouro" name="logradouro"
-                                    maxlength="100" value="{{ old('logradouro') }}">
+                                <input type="text" class="form-control form-control-sm" id="logradouro"
+                                    name="logradouro" maxlength="100" value="{{ old('logradouro') }}">
                                 @error('logradouro')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
@@ -150,8 +152,8 @@
                             </div>
                             <div class="col-md-4 col-lg-3">
                                 <label for="complemento" class="form-label">Complemento</label>
-                                <input type="text" class="form-control form-control-sm" id="complemento" name="complemento"
-                                    maxlength="50" value="{{ old('complemento') }}">
+                                <input type="text" class="form-control form-control-sm" id="complemento"
+                                    name="complemento" maxlength="50" value="{{ old('complemento') }}">
                                 @error('complemento')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
@@ -172,9 +174,9 @@
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-2 col-lg-1">
+                            <div class="col-md-2">
                                 <label for="uf" class="form-label">UF</label>
-                                <input type="text" class="form-control form-control-sm" id="uf" name="uf"
+                                <input type="text" class="form-control form-control-sm" id="estado" name="estado"
                                     maxlength="2" value="{{ old('uf') }}">
                                 @error('uf')
                                     <div class="text-danger small">{{ $message }}</div>
@@ -188,9 +190,10 @@
                         <legend class="float-none w-auto px-3 fs-5 text-secondary">Contato</legend>
                         <div class="row g-3">
                             <div class="col-md-4 col-lg-3">
-                                <label for="telefone1" class="form-label">Telefone 1 <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control form-control-sm" id="telefone1" name="telefone1"
-                                    maxlength="15" required value="{{ old('telefone1') }}">
+                                <label for="telefone1" class="form-label">Telefone 1 <span
+                                        class="text-danger">*</span></label>
+                                <input type="tel" class="form-control form-control-sm" id="telefone1"
+                                    name="telefone1" maxlength="15" required value="{{ old('telefone1') }}">
                                 @error('telefone1')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
@@ -203,8 +206,8 @@
                             </div>
                             <div class="col-md-4 col-lg-3">
                                 <label for="telefone2" class="form-label">Telefone 2</label>
-                                <input type="tel" class="form-control form-control-sm" id="telefone2" name="telefone2"
-                                    maxlength="15" value="{{ old('telefone2') }}">
+                                <input type="tel" class="form-control form-control-sm" id="telefone2"
+                                    name="telefone2" maxlength="15" value="{{ old('telefone2') }}">
                                 @error('telefone2')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
@@ -224,14 +227,15 @@
                         <div class="row g-3">
                             <div class="col-md-4 col-lg-3">
                                 <label for="senha" class="form-label">Senha <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control form-control-sm" id="senha" name="senha"
-                                    required>
+                                <input type="password" class="form-control form-control-sm" id="senha"
+                                    name="senha" required>
                                 @error('senha')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-4 col-lg-3">
-                                <label for="senha_confirmation" class="form-label">Confirmar Senha <span class="text-danger">*</span></label>
+                                <label for="senha_confirmation" class="form-label">Confirmar Senha <span
+                                        class="text-danger">*</span></label>
                                 <input type="password" class="form-control form-control-sm" id="senha_confirmation"
                                     name="senha_confirmation" required>
                                 @error('senha_confirmation')
@@ -239,15 +243,24 @@
                                 @enderror
                             </div>
                             <div class="col-md-4 col-lg-3">
-                                <label for="tipo_usuario" class="form-label">Tipo de Usuário <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-sm" id="tipo_usuario" name="tipo_usuario" required>
+                                <label for="tipo_usuario" class="form-label">Tipo de Usuário <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="tipo_usuario" name="tipo_usuario"
+                                    required>
                                     <option value="">Selecione o Tipo</option>
-                                    <option value="administrador" {{ old('tipo_usuario') == 'administrador' ? 'selected' : '' }}>Administrador</option>
-                                    <option value="corretor" {{ old('tipo_usuario') == 'corretor' ? 'selected' : '' }}>Corretor</option>
-                                    <option value="cliente" {{ old('tipo_usuario') == 'cliente' ? 'selected' : '' }}>Cliente</option>
-                                    <option value="proprietario" {{ old('tipo_usuario') == 'proprietario' ? 'selected' : '' }}>Proprietário</option>
-                                    <option value="locatario" {{ old('tipo_usuario') == 'locatario' ? 'selected' : '' }}>Locatário</option>
-                                    <option value="funcionario" {{ old('tipo_usuario') == 'funcionario' ? 'selected' : '' }}>Funcionário</option>
+                                    <option value="administrador"
+                                        {{ old('tipo_usuario') == 'administrador' ? 'selected' : '' }}>Administrador
+                                    </option>
+                                    <option value="corretor" {{ old('tipo_usuario') == 'corretor' ? 'selected' : '' }}>
+                                        Corretor</option>
+                                    <option value="cliente" {{ old('tipo_usuario') == 'cliente' ? 'selected' : '' }}>
+                                        Cliente</option>
+                                    <option value="proprietario"
+                                        {{ old('tipo_usuario') == 'proprietario' ? 'selected' : '' }}>Proprietário</option>
+                                    <option value="locatario" {{ old('tipo_usuario') == 'locatario' ? 'selected' : '' }}>
+                                        Locatário</option>
+                                    <option value="funcionario"
+                                        {{ old('tipo_usuario') == 'funcionario' ? 'selected' : '' }}>Funcionário</option>
                                 </select>
                                 @error('tipo_usuario')
                                     <div class="text-danger small">{{ $message }}</div>
@@ -270,8 +283,9 @@
                                     @enderror
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input type="checkbox" class="form-check-input" id="receber_email" name="receber_email"
-                                        value="1" {{ old('receber_email', 1) ? 'checked' : '' }}>
+                                    <input type="checkbox" class="form-check-input" id="receber_email"
+                                        name="receber_email" value="1"
+                                        {{ old('receber_email', 1) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="receber_email">Receber E-mail?</label>
                                     @error('receber_email')
                                         <div class="text-danger small">{{ $message }}</div>
@@ -312,32 +326,32 @@
                             </div>
                             <div class="col-md-4 col-lg-3">
                                 <label for="matricula" class="form-label">Matrícula (funcionário)</label>
-                                <input type="text" class="form-control form-control-sm" id="matricula" name="matricula"
-                                    maxlength="20" value="{{ old('matricula') }}">
+                                <input type="text" class="form-control form-control-sm" id="matricula"
+                                    name="matricula" maxlength="20" value="{{ old('matricula') }}">
                                 @error('matricula')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-4 col-lg-3">
                                 <label for="foto_url" class="form-label">URL da Foto</label>
-                                <input type="text" class="form-control form-control-sm" id="foto_url" name="foto_url"
-                                    maxlength="255" value="{{ old('foto_url') }}">
+                                <input type="text" class="form-control form-control-sm" id="foto_url"
+                                    name="foto_url" maxlength="255" value="{{ old('foto_url') }}">
                                 @error('foto_url')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-4 col-lg-3">
                                 <label for="instagram" class="form-label">Instagram URL</label>
-                                <input type="text" class="form-control form-control-sm" id="instagram" name="instagram"
-                                    maxlength="100" value="{{ old('instagram') }}">
+                                <input type="text" class="form-control form-control-sm" id="instagram"
+                                    name="instagram" maxlength="100" value="{{ old('instagram') }}">
                                 @error('instagram')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-4 col-lg-3">
                                 <label for="facebook" class="form-label">Facebook URL</label>
-                                <input type="text" class="form-control form-control-sm" id="facebook" name="facebook"
-                                    maxlength="100" value="{{ old('facebook') }}">
+                                <input type="text" class="form-control form-control-sm" id="facebook"
+                                    name="facebook" maxlength="100" value="{{ old('facebook') }}">
                                 @error('facebook')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
@@ -352,8 +366,8 @@
                             </div>
                             <div class="col-md-4 col-lg-3">
                                 <label for="linkedin" class="form-label">LinkedIn URL</label>
-                                <input type="text" class="form-control form-control-sm" id="linkedin" name="linkedin"
-                                    maxlength="100" value="{{ old('linkedin') }}">
+                                <input type="text" class="form-control form-control-sm" id="linkedin"
+                                    name="linkedin" maxlength="100" value="{{ old('linkedin') }}">
                                 @error('linkedin')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
