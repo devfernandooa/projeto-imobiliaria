@@ -15,17 +15,16 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
+  public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         $this->call([
-            // GARANTA QUE O SEEDER ESTÁ AQUI NA LISTA DE CHAMADAS
-            UsuarioAdminSeeder::class, // <--- VERIFIQUE ESTA LINHA!
-            //EnderecoSeeder::class,     // Exemplo
-            ImobiliariaSeeder::class,  // Exemplo
+            // Ordem Corrigida:
+            \Database\Seeders\ImobiliariaSeeder::class,   // <--- Cria Imobiliárias e seus Endereços
+            \Database\Seeders\UsuarioAdminSeeder::class,  // <--- Cria o Admin e vincula a Imobiliária e o Endereço de Teste
         ]);
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

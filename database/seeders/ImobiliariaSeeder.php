@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Imobiliaria; // Importe a Model Imobiliaria
-use App\Models\Endereco; // Para buscar um Endereco para o relacionamento
+use App\Models\Imobiliaria;
+use App\Models\Endereco; // <--- Model Endereco para criar a dependência
 
 class ImobiliariaSeeder extends Seeder
 {
@@ -14,35 +13,34 @@ class ImobiliariaSeeder extends Seeder
      */
     public function run(): void
     {
-        // Limpa a tabela antes de popular
-        Imobiliaria::truncate(); // CUIDADO: Isso apaga TODOS os dados da tabela Imobiliarias!
+        Imobiliaria::truncate(); // Limpa a tabela de imobiliárias
+        Endereco::truncate();    // <--- Limpa Endereços AQUI, pois os endereços anteriores eram de teste para a imobiliária
 
-        // Recupera alguns IDs de endereço para associar às imobiliárias
-        $endereco1 = Endereco::first(); // Pega o primeiro endereço que foi criado pelo EnderecoSeeder
-        //$endereco2 = Endereco::skip(1)->first(); // Pega o segundo
+        // 1. Cria o Endereço de Teste para a Imobiliária
+        $enderecoImob1 = Endereco::create([
+            'endereco' => 'Rua Principal da Imobiliária',
+            'numero' => '1',
+            'cep' => '90001-001',
+            'localizacao' => 'Escritório Central',
+            'bairro' => 'Centro',
+            'cidade' => 'Feira de Santana',
+            'estado' => 'BA',
+            'localidade' => 'Feira de Santana',
+        ]);
 
+        // Cria a Imobiliária, vinculando o ID do Endereço
         Imobiliaria::create([
             'nome_fantasia' => 'Imob Prime',
-            'razao_social' => 'Imob Prime Ltda',
+            'razao_social' => 'Imob Prime S/A',
             'cnpj' => '00.000.000/0001-00',
-            'endereco_id' => $endereco1 ? $endereco1->id : null, // Associa ao primeiro endereço
+            'endereco_id' => $enderecoImob1->id, // <--- Vinculação direta
             'telefone' => '(75) 3221-1234',
             'email' => 'contato@imobprime.com.br',
             'creci' => 'PJ12345',
             'logo_url' => 'https://example.com/logo-prime.png',
         ]);
 
-        // Imobiliaria::create([
-        //     'nome_fantasia' => 'Lar Doce Lar Imóveis',
-        //     'razao_social' => 'Lar Doce Lar Imoveis S/A',
-        //     'cnpj' => '11.111.111/0001-11',
-        //     'endereco_id' => $endereco2 ? $endereco2->id : null, // Associa ao segundo endereço
-        //     'telefone' => '(75) 3333-5555',
-        //     'email' => 'contato@lardocelar.com',
-        //     'creci' => 'PJ67890',
-        //     'logo_url' => 'https://example.com/logo-lar.png',
-        // ]);
-
-        $this->command->info('Imobiliária criada com sucesso!');
+      
+        $this->command->info('Imobiliárias e seus endereços de teste criados com sucesso!');
     }
 }
