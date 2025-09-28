@@ -137,31 +137,6 @@
                             </li>
                         @endcan
 
-                        {{-- SUB-MENU: Gerenciar Endereços (apenas administradores) 
-                        @can('access-admin-dashboard')
-                            <li>
-                                <a class="nav-link px-3 sidebar-link" data-bs-toggle="collapse" href="#enderecosCollapse"
-                                    role="button" aria-expanded="false" aria-controls="enderecosCollapse">
-                                    <i class="fas fa-map-marker-alt me-2"></i> Gerenciar Endereços
-                                    <span class="right-icon ms-auto"><i class="fas fa-chevron-down"></i></span>
-                                </a>
-                                <div class="collapse" id="enderecosCollapse">
-                                    <ul class="navbar-nav ps-3">
-                                        <li>
-                                            <a href="{{ route('enderecos.index') }}" class="nav-link px-3">
-                                                <i class="fas fa-list me-2"></i> Listar Endereços
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ route('enderecos.create') }}" class="nav-link px-3">
-                                                <i class="fas fa-plus me-2"></i> Criar Endereço
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                        @endcan --}}
-
                         {{-- SUB-MENU: Gerenciar Imóveis (Admin e Corretor) --}}
                         @canany(['access-admin-dashboard', 'access-corretor-dashboard'])
                             <li>
@@ -173,12 +148,12 @@
                                 <div class="collapse" id="imoveisCollapse">
                                     <ul class="navbar-nav ps-3">
                                         <li>
-                                            <a href="#" class="nav-link px-3">
+                                            <a href={{ route('imoveis.index') }} class="nav-link px-3">
                                                 <i class="fas fa-list me-2"></i> Listar Imóveis
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="#" class="nav-link px-3">
+                                            <a href="{{ route('imoveis.create') }}" class="nav-link px-3">
                                                 <i class="fas fa-plus me-2"></i> Criar Imóvel
                                             </a>
                                         </li>

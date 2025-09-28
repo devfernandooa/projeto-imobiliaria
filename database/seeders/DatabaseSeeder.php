@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             // Ordem Corrigida:
             \Database\Seeders\ImobiliariaSeeder::class,   // <--- Cria Imobiliárias e seus Endereços
             \Database\Seeders\UsuarioAdminSeeder::class,  // <--- Cria o Admin e vincula a Imobiliária e o Endereço de Teste
+            \Database\Seeders\ImovelSeeder::class,       // <--- Cria Imóveis e seus Endereços
         ]);
 
         \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
