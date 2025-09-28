@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Controllers\ImovelController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UsuarioController;
 use app\Http\Controllers\EnderecoController;
 use App\Http\Controllers\ImobiliariaController;
-
+use App\Models\Imobiliaria;
 
 Route::get('/', function () {
     return view('index');
@@ -121,4 +122,15 @@ Route::prefix('imobiliarias')->group(function () {
     // Adicione aqui as rotas show, edit, update, destroy para Imobiliarias no futuro
 });
 
-// Rota para o perfil do usuário autenticado
+// Rotas para a gestão de imóveis
+Route::prefix('imoveis')->group(function () {
+    // Rotas essenciais para Listar, Exibir formulário e Criar imóveis
+    Route::get('/', [ImovelController::class, 'index'])->name('imoveis.index');
+    Route::get('/criar', [ImovelController::class, 'create'])->name('imoveis.create');
+    Route::post('/', [ImovelController::class, 'store'])->name('imoveis.store');
+    // Rotas adicionais para visualizar, editar, atualizar e excluir imóveis
+    Route::get('/{imovel}', [ImovelController::class, 'show'])->name('imoveis.show');
+    Route::get('/{imovel}/editar', [ImovelController::class, 'edit'])->name('imoveis.edit');
+    Route::put('/{imovel}', [ImovelController::class, 'update'])->name('imoveis.update');
+    Route::delete('/{imovel}', [ImovelController::class, 'destroy'])->name('imoveis.destroy');
+});
