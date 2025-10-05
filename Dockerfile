@@ -23,7 +23,8 @@ RUN apt-get update && apt-get install -y \
 
 # Instala o Composer globalmente
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
+# Copia as configurações locais do PHP
+COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
 # Define o diretório de trabalho principal
 WORKDIR /var/www/html
 

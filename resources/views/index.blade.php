@@ -154,108 +154,75 @@
 
             <div class="tab-content" id="propertyTabsContent">
                 <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                    {{-- Em resources/views/index.blade.php, dentro da seção de imóveis --}}
+
                     <div class="row g-4">
+                        @forelse ($imoveis as $imovel)
+                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                <div class="card property-card h-100 shadow-lg px-2 pt-3">
 
-                        <!-- Propriedade 1 -->
-                        <div class="col-md-6 col-lg-4 col-xl-3">
-                            <div class="card property-card h-100 shadow-lg px-2 pt-3">
-                                <div class="card-title text-center">
-                                    <span class="text-center ">Disponível para venda.</span>
-                                </div>
-                                <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                                    class="card-img-top" alt="Casa para venda">
-                                <div class="card-body">
-                                    <h5 class="card-title">Casa Residencial</h5>
-                                    <p class="card-text text-muted"><i class="fas fa-map-marker-alt me-2"></i>Zona
-                                        Sul,
-                                        São Paulo</p>
-                                    <div class="features d-flex justify-content-between mb-3">
-                                        <span><i class="fas fa-bed me-1"></i> 3 Quartos</span>
-                                        <span><i class="fas fa-bath me-1"></i> 2 Banheiros</span>
-                                        <span><i class="fas fa-ruler-combined me-1"></i> 180m²</span>
+                                    {{-- ... Código da tag span de disponibilidade ... --}}
+                                    <div class="card-title text-center">
+                                        <span
+                                            class="text-center bg-{{ $imovel->disponibilidade === 'Venda' ? 'info' : ($imovel->disponibilidade === 'Locação' ? 'warning' : 'danger') }} text-white p-1 rounded-pill small">
+                                            Disponível para {{ $imovel->disponibilidade }}.
+                                        </span>
                                     </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="price mb-0">R$ 850.000</h6>
-                                        <button class="btn btn-sm btn-outline-primary property-details">Detalhes</button>
+
+                                    {{-- >>>>> CÓDIGO CORRIGIDO AQUI <<<<< --}}
+                                    @if ($imovel->fotos->isNotEmpty())
+                                        {{-- Exibe a URL da primeira foto --}}
+                                        <img src="{{ $imovel->fotos->first()->foto_url }}" class="card-img-top"
+                                            alt="Foto do Imóvel {{ $imovel->tipo_imovel }}"
+                                            style="height: 200px; object-fit: cover;"> {{-- Adicionei um estilo para padronizar o tamanho --}}
+                                    @else
+                                        {{-- Placeholder se não houver foto --}}
+                                        <img src="https://via.placeholder.com/600x400.png?text=Sem+Foto"
+                                            class="card-img-top" alt="Sem Foto"
+                                            style="height: 200px; object-fit: cover;">
+                                    @endif
+                                    {{-- >>>>> FIM DO CÓDIGO CORRIGIDO <<<<< --}}
+
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ ucfirst($imovel->tipo_imovel) }}</h5>
+                                        {{-- ... O restante do card ... --}}
+
+                                        {{-- O resto do seu código Blade continua aqui: --}}
+                                        <p class="card-text text-muted">
+                                            <i class="fas fa-map-marker-alt me-2"></i>
+                                            @if ($imovel->endereco)
+                                                {{ $imovel->endereco->bairro }}, {{ $imovel->endereco->cidade }}
+                                            @else
+                                                Localização N/A
+                                            @endif
+                                        </p>
+                                        <div class="features d-flex justify-content-between mb-3">
+                                            <span><i class="fas fa-bed me-1"></i> {{ $imovel->qtde_comodos }}
+                                                Cômodos</span>
+                                            <span><i class="fas fa-ruler-combined me-1"></i>
+                                                {{ number_format($imovel->total_area, 0, ',', '.') }}m²</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="price mb-0">
+                                                @if ($imovel->disponibilidade === 'Venda')
+                                                    R$ {{ number_format($imovel->preco_venda, 2, ',', '.') }}
+                                                @elseif($imovel->disponibilidade === 'Locação')
+                                                    R$ {{ number_format($imovel->preco_locacao, 2, ',', '.') }}/mês
+                                                @else
+                                                    -
+                                                @endif
+                                            </h6>
+                                            <a href="#"
+                                                class="btn btn-sm btn-outline-primary property-details">Detalhes</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Propriedade 2 -->
-                        <div class="col-md-6 col-lg-4 col-xl-3">
-                            <div class="card property-card h-100 shadow-lg px-2 pt-3">
-                                <div class="card-title text-center">
-                                    <span class="text-center ">Disponível para aluguel.</span>
-                                </div>
-                                <img src="https://media.istockphoto.com/id/683438570/pt/foto/modern-luxury-apartment-building.webp?s=2048x2048&w=is&k=20&c=XdKVFkp-EApNbMhJwgPkJiA73-KLatZtPHs2UdTmZ9Y="
-                                    class="card-img-top img-fluid" alt="Apartamento para aluguel">
-                                <div class="card-body">
-                                    <h5 class="card-title">Apartamento</h5>
-                                    <p class="card-text text-muted"><i class="fas fa-map-marker-alt me-2"></i>Centro,
-                                        São Paulo</p>
-                                    <div class="features d-flex justify-content-between mb-3">
-                                        <span><i class="fas fa-bed me-1"></i> 2 Quartos</span>
-                                        <span><i class="fas fa-bath me-1"></i> 1 Banheiro</span>
-                                        <span><i class="fas fa-ruler-combined me-1"></i> 75m²</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="price mb-0">R$ 2.500/mês</h6>
-                                        <button class="btn btn-sm btn-outline-primary property-details">Detalhes</button>
-                                    </div>
-                                </div>
+                        @empty
+                            <div class="col-12">
+                                <div class="alert alert-info text-center">Nenhum imóvel disponível no momento.</div>
                             </div>
-                        </div>
-
-                        <!-- Propriedade 3 -->
-                        <div class="col-md-6 col-lg-4 col-xl-3">
-                            <div class="card property-card h-100 shadow-lg px-2 pt-3">
-                                <div class="card-title text-center">
-                                    <span class="text-center ">Disponível Sala Comercial.</span>
-                                </div>
-                                <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80"
-                                    class="card-img-top img-fluid" alt="Sala comercial">
-                                <div class="card-body">
-                                    <h5 class="card-title">Sala Comercial</h5>
-                                    <p class="card-text text-muted"><i class="fas fa-map-marker-alt me-2"></i>Centro,
-                                        São Paulo</p>
-                                    <div class="features d-flex justify-content-between mb-3">
-                                        <span><i class="fas fa-door-open me-1"></i> 2 Salas</span>
-                                        <span><i class="fas fa-bath me-1"></i> 1 Banheiro</span>
-                                        <span><i class="fas fa-ruler-combined me-1"></i> 120m²</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="price mb-0">R$ 1.200.000</h6>
-                                        <button class="btn btn-sm btn-outline-primary property-details">Detalhes</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Propriedade 4 -->
-                        <div class="col-md-6 col-lg-4 col-xl-3">
-                            <div class="card property-card h-100 shadow-lg px-2 pt-3">
-                                <div class="card-title text-center">
-                                    <span class="text-center ">Indisponível, vendido..</span>
-                                </div>
-                                <img src="https://media.istockphoto.com/id/976531686/pt/foto/modern-buildings-in-sydney-business-district-australia.webp?s=2048x2048&w=is&k=20&c=R1PkOUhpyPygzVqiW2v4HUmzBryJ5WeztczpnlKQfVI=""
-                                    class="card-img-top img-fluid" alt="Apartamento para aluguel">
-                                <div class="card-body">
-                                    <h5 class="card-title">Apartamento</h5>
-                                    <p class="card-text text-muted"><i class="fas fa-map-marker-alt me-2"></i>Centro,
-                                        São Paulo</p>
-                                    <div class="features d-flex justify-content-between mb-3">
-                                        <span><i class="fas fa-bed me-1"></i> 2 Quartos</span>
-                                        <span><i class="fas fa-bath me-1"></i> 1 Banheiro</span>
-                                        <span><i class="fas fa-ruler-combined me-1"></i> 75m²</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="price mb-0">R$ 2.500/mês</h6>
-                                        <button class="btn btn-sm btn-outline-primary property-details">Detalhes</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
 
@@ -371,7 +338,8 @@
             </div>
         </div>
     </section>
-    <a href="https://wa.me/SEU_NUMERO_DE_TELEFONE?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20seus%20serviços." class="whatsapp-float" target="_blank">
+    <a href="https://wa.me/SEU_NUMERO_DE_TELEFONE?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20seus%20serviços."
+        class="whatsapp-float" target="_blank">
         <img src="{{ asset('images/whatsapp-logo-3.png') }}" alt="WhatsApp">
     </a>
 @endsection

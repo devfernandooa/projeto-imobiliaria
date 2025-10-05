@@ -4,6 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Endereco;    
+use App\Models\Imobiliaria; 
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
 
 class Imovel extends Model
 {
