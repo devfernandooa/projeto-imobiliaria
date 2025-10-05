@@ -312,4 +312,21 @@ class UsuarioController extends Controller
         // Redireciona para a lista de usuários com uma mensagem de sucesso
         return redirect()->route('usuarios.index')->with('success', 'Usuário excluído com sucesso!');
     }
+
+
+    // -----------------------------------------------------------
+        // MÉTODOS DE AUTENTICAÇÃO E DASHBOARD (FALTANDO)
+        // -----------------------------------------------------------
+
+        public function authenticate(Request $request) { /* Lógica de login: Auth::attempt() */ }
+        public function logout(Request $request) { /* Lógica de logout: Auth::logout() */ }
+        public function showRegisterForm() { /* Retorna view('auth.register') */ }
+        public function registerUser(Request $request) { /* Lógica de cadastro público */ }
+
+        // MÉTODOS DE REDIRECIONAMENTO E EXIBIÇÃO DE DASHBOARD
+        public function redirecionamentoPorTipoUsuario(\App\Models\Usuario $usuario) { /* Lógica switch de redirecionamento */ }
+        public function showAdminDashboard() { return view('dashboards.admin'); }
+        public function showCorretorDashboard() { return view('dashboards.corretor'); }
+        public function showFuncionarioDashboard() { return view('dashboards.funcionario'); }
+        public function showClienteDashboard() { return view('dashboards.cliente'); }
 }

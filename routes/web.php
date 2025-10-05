@@ -1,136 +1,108 @@
 <?php
 
-use App\Http\Controllers\ImovelController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\UsuarioController;
-use app\Http\Controllers\EnderecoController;
+
+// --- CORREÇÃO 1: REMOVER LoginController e CENTRALIZAR em UsuarioController/HomeController ---
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UsuarioController; // Vamos usar este para a maioria das ações de Auth
+use App\Http\Controllers\EnderecoController;
 use App\Http\Controllers\ImobiliariaController;
-use App\Models\Imobiliaria;
-
-Route::get('/', function () {
-    return view('index');
-});
+use App\Http\Controllers\ImovelController;
 
 
-// -----------------// Rotas de autenticação \\-----------------
-/**
- * Grupo de  Rotas de autenticação,  agrupamento simples sem prefixo URL, 
- * apenas para nittulo de organizar o código e a agrupar as rotas.
- */
+/*
+|--------------------------------------------------------------------------
+| Rota Principal (Homepage)
+|--------------------------------------------------------------------------
+*/
+// Rota Raiz: Sintaxe CORRIGIDA
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
- Route::group([], function () {
-     Route::get('/login', function (){
+
+/*
+|--------------------------------------------------------------------------
+| Rotas de Autenticação (Login/Logout e Cadastro Público)
+|--------------------------------------------------------------------------
+*/
+Route::group([], function () {
+
+    // Rota GET /login: Redireciona para a página inicial
+    Route::get('/login', function () {
         return redirect('/')->with('message', 'Você precisa estar logado para acessar o sistema.');
-     })->name('login');
-    //Rota para o processamento de login, o MODAL vai vir com o método POST sera direcionado para essa rota.
-    Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
-    //Rota para o processamento de logout
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    })->name('login');
 
-    // Rotas para cadastro público, essa rota vai exibiro formulário de cadastro público
-    Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [LoginController::class, 'registerUser'])->name('register.store');
- });
+    // CORREÇÃO 2: Apontar Login/Logout/Register para o UsuarioController
+    // Rota POST /login: Processa o login do formulário (do modal).
+    Route::post('/login', [UsuarioController::class, 'authenticate'])->name('login.authenticate');
 
+    // Rota POST /logout: Encerra a sessão do usuário.
+    Route::post('/logout', [UsuarioController::class, 'logout'])->name('logout');
 
-// Dashboard, grupo de Rotas que exigem autentcação
+    // Rotas de Cadastro Público (Register)
+    Route::get('/register', [UsuarioController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [UsuarioController::class, 'registerUser'])->name('register.store');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Rotas Protegidas (Dashboards e CRUDs de Gestão)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth')->group(function () {
-    // Rota generica para o dashboard, vai ser redirecionando no controller LoginController
+
+    // ROTAS DE DASHBOARD POR PERFIL
+    // Rota base de dashboard: Chama o UsuarioController para redirecionar
     Route::get('/dashboards', function () {
-        return redirect()->action(LoginController::class, 'redirecionamentoPorTipoUsuario');
-    })->name('dashboard');// Nome da rota principal que o LoginController chama
-    /**
-     * Route::middleware('auth'): Isso significa que todas as rotas dentro deste grupo só serão acessíveis se o usuário estiver logado.
-     * Caso não esteja logado, o usuário será redirecionado para a página inicial para que efetue o login.
-     * ->middleware('can:nome-da-permissao'): Isto é para o sistema de Gates e Policies do Laravel, que é a forma mais refinada de controlar permissões.
-     * Neste caso, a rota só será acessível se o usuário tiver a permissão 'view-profile'.
-    */     
-    //Rotas para cada tipo de usuário
-    Route::get('/dashboards/admin', function () {
-        return view('dashboards.admin');
-    })->name('admin.dashboard')->middleware('can:access-admin-dashboard');
+        // CORREÇÃO 3: Criamos uma instância do UsuarioController para chamar o método
+        return (new UsuarioController())->redirecionamentoPorTipoUsuario(Auth::user());
+    })->name('dashboard');
 
-    Route::get('/dashboards/corretor', function () {
-        return view ('dasboards.corretor');
-    })->name('corretor.dashboard')->middleware('can:access-corretor-dashboard');
-
-    Route::get('/dashboards/funcionario', function () {
-        return view ('dashboards.funcionario');
-    })->name('funcionario.dashboard')->middleware('can:access-funcionario-dashboard');
-
-    Route::get('/dashboards/cliente', function () {
-        return view ('dashboards.cliente');
-    })->name('cliente.dashboard')->middleware('can:access-cliente-dashboard');    
-
-});
+    // Rotas para painéis específicos (Protegidas pelo middleware 'can')
+    // CORREÇÃO 4: Apontar para os métodos no UsuarioController
+    Route::get('/dashboards/admin', [UsuarioController::class, 'showAdminDashboard'])->name('admin.dashboard')->middleware('can:access-admin-dashboard');
+    Route::get('/dashboards/corretor', [UsuarioController::class, 'showCorretorDashboard'])->name('corretor.dashboard')->middleware('can:access-corretor-dashboard');
+    Route::get('/dashboards/funcionario', [UsuarioController::class, 'showFuncionarioDashboard'])->name('funcionario.dashboard')->middleware('can:access-funcionario-dashboard');
+    Route::get('/dashboards/cliente', [UsuarioController::class, 'showClienteDashboard'])->name('cliente.dashboard')->middleware('can:access-cliente-dashboard');
 
 
-/**
- * Grupo de rotas para o CRUD de Endereços
- * Rotas para criar, editar, atualizar e excluir endereços
- */
-Route::prefix('enderecos')->group(function () {
-    // A Rota '/enderecos' agora vira '/' dentro do grupo 'enderecos'
-    Route::get('/', [EnderecoController::class, 'index'])->name('enderecos.index');
-    // A Rota '/enderecos/create' agora vira '/create' dentro do grupo
-    Route::get('/criar', [EnderecoController::class, 'create'])->name('enderecos.create');
-    // A Rota POST '/enderecos' agora vira '/' dentro do grupo
-    Route::post('/', [EnderecoController::class, 'store'])->name('enderecos.store');
-    // Podemos adicionar mais rotas aqui, como show, edit, update, destroy futuramente
-    // Exemplo de rotas adicionais (comentadas para não interferir no funcionamento atual):
-    // Route::get('/{id}', [EnderecoController::class, 'show'])->name('enderecos.show');
-    // Route::get('/{id}/editar', [EnderecoController::class, 'edit'])->name('enderecos.edit');
-    // Route::put('/{id}', [EnderecoController::class, 'update'])->name('enderecos.update');
-    // Route::delete('/{id}', [EnderecoController::class, 'destroy'])->name('enderecos.destroy');
-});
+    // ------------------- GRUPO: CRUDs de Gestão -------------------
 
+    // CRUD: Usuários
+    Route::prefix('usuarios')->group(function () {
+        Route::get('/', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::get('/criar', [UsuarioController::class, 'create'])->name('usuarios.create')->middleware('can:create-admin-users'); // Protegida
+        Route::post('/', [UsuarioController::class, 'store'])->name('usuarios.store');
+        Route::get('/{usuario}', [UsuarioController::class, 'show'])->name('usuarios.show');
+        Route::get('/{usuario}/editar', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+        Route::put('/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
+        Route::delete('/{usuario}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+    });
 
-/**
- * Grupo de rotas para o CRUD de Usuários
- * Rotas para criar, editar, atualizar e excluir usuários
- */
+    // CRUD: Imóveis
+    Route::prefix('imoveis')->group(function () {
+        Route::get('/', [ImovelController::class, 'index'])->name('imoveis.index');
+        Route::get('/criar', [ImovelController::class, 'create'])->name('imoveis.create');
+        Route::post('/', [ImovelController::class, 'store'])->name('imoveis.store');
+        Route::get('/{imovel}', [ImovelController::class, 'show'])->name('imoveis.show');
+        Route::get('/{imovel}/editar', [ImovelController::class, 'edit'])->name('imoveis.edit');
+        Route::put('/{imovel}', [ImovelController::class, 'update'])->name('imoveis.update');
+        Route::delete('/{imovel}', [ImovelController::class, 'destroy'])->name('imoveis.destroy');
+    });
 
-Route::prefix('usuarios')->group(function () {
-    //Rota para listar todos os Usuários, a Rota '/usuarios' agora vira '/' dentro do grupo 'usuarios'
-    Route::get('/', [UsuarioController::class, 'index'])->name('usuarios.index');
-    Route::get('/criar', [UsuarioController::class, 'create'])->name('usuarios.create');
-    Route::post('/', [UsuarioController::class, 'store'])->name('usuarios.store');
+    // CRUD: Imobiliárias
+    Route::prefix('imobiliarias')->group(function () {
+        Route::get('/', [ImobiliariaController::class, 'index'])->name('imobiliarias.index');
+        Route::get('/criar', [ImobiliariaController::class, 'create'])->name('imobiliarias.create');
+        Route::post('/', [ImobiliariaController::class, 'store'])->name('imobiliarias.store');
+        // ... (Futuras rotas) ...
+    });
 
-    // ROTA PARA VISUALIZAR DETALHES DE UM USUÁRIO ESPECÍFICO
-    Route::get('/{usuario}', [UsuarioController::class, 'show'])->name('usuarios.show');
-
-    // Rota para exibir o formulário de edição de um usuário específico
-    Route::get('/{usuario}/editar', [UsuarioController::class, 'edit'])->name('usuarios.edit');
-    // Rota para Atualizar as informações de um usuário expecifico (Recebe o ID do usuário a ser atualizado pelo método PUT)
-    Route::put('/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
-
-    // Rota para excluir um usuário específico (Recebe o ID do usuário a ser excluído pelo método DELETE)
-    Route::delete('/{usuario}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
-
-});
-
-/**
- * ROTAS DE CRUD PARA IMOBILIÁRIAS 
- * OBS: ImobiliariaController ainda não foi criado
- */
-Route::prefix('imobiliarias')->group(function () {
-    Route::get('/', [ImobiliariaController::class, 'index'])->name('imobiliarias.index'); // <-- CRÍTICO! Este nome.
-    Route::get('/criar', [ImobiliariaController::class, 'create'])->name('imobiliarias.create');
-    Route::post('/', [ImobiliariaController::class, 'store'])->name('imobiliarias.store');
-    // Adicione aqui as rotas show, edit, update, destroy para Imobiliarias no futuro
-});
-
-// Rotas para a gestão de imóveis
-Route::prefix('imoveis')->group(function () {
-    // Rotas essenciais para Listar, Exibir formulário e Criar imóveis
-    Route::get('/', [ImovelController::class, 'index'])->name('imoveis.index');
-    Route::get('/criar', [ImovelController::class, 'create'])->name('imoveis.create');
-    Route::post('/', [ImovelController::class, 'store'])->name('imoveis.store');
-    // Rotas adicionais para visualizar, editar, atualizar e excluir imóveis
-    Route::get('/{imovel}', [ImovelController::class, 'show'])->name('imoveis.show');
-    Route::get('/{imovel}/editar', [ImovelController::class, 'edit'])->name('imoveis.edit');
-    Route::put('/{imovel}', [ImovelController::class, 'update'])->name('imoveis.update');
-    Route::delete('/{imovel}', [ImovelController::class, 'destroy'])->name('imoveis.destroy');
+    // CRUD: Endereços
+    Route::prefix('enderecos')->group(function () {
+        Route::get('/', [EnderecoController::class, 'index'])->name('enderecos.index');
+        Route::get('/criar', [EnderecoController::class, 'create'])->name('enderecos.create');
+        Route::post('/', [EnderecoController::class, 'store'])->name('enderecos.store');
+        // ... (Futuras rotas) ...
+    });
 });

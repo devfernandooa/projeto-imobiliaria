@@ -226,6 +226,10 @@
                             <input type="file"
                                 class="form-control form-control-sm @error('fotos') is-invalid @enderror" id="fotos"
                                 name="fotos[]" multiple>
+
+                            <div id="file-count-feedback" class="form-text mt-1">
+                                Mínimo de 5 fotos necessárias.
+                            </div>
                             @error('fotos')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
