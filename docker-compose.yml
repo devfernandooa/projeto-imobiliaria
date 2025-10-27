@@ -11,8 +11,8 @@ services:
     environment:
       # Variável para ambiente Laravel, pode ser 'local' ou 'staging'
       SERVICE_NAME: app
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
+      #MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      #MYSQL_DATABASE: ${DB_DATABASE}
     volumes:
       - .:/var/www/html:cached # Monta o código local no contêiner
     networks:
