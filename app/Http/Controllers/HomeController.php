@@ -12,7 +12,7 @@ class HomeController extends Controller
 
     public function index() 
     {
-        $imoveis = Imovel::with('endereco', 'fotos')
+        $imoveis = Imovel::with(['endereco', 'fotos'])
                             ->whereIn('disponibilidade', ['Locação', 'Venda'])
                             ->latest()
                             ->take(8) // Limita a 8 imóveis

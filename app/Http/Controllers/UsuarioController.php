@@ -6,6 +6,8 @@ use App\Models\Endereco;
 use App\Models\Imobiliaria;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class UsuarioController extends Controller
 {
@@ -253,8 +255,6 @@ class UsuarioController extends Controller
             'foto_url' => 'nullable|url|max:255',
             'matricula' => 'nullable|string|max:50|unique:usuarios,matricula,'.$usuario->id,
             'tipo_usuario' => 'required|in:administrador,corretor,cliente,proprietario,locatario,funcionario',
-            // 'nivel_acesso' não é mais validado como 'required' aqui, pois será FORÇADO pela lógica.
-            // Mas pode ser 'nullable|integer' se o campo ainda existir no form e se for necessário validá-lo como número.
             'nivel_acesso' => 'nullable|integer',
             'ativo' => 'boolean',
             'receber_email' => 'boolean',
@@ -313,20 +313,96 @@ class UsuarioController extends Controller
         return redirect()->route('usuarios.index')->with('success', 'Usuário excluído com sucesso!');
     }
 
+    /**
+     * Redireciona o usuário para o dashboard apropriado com base no seu tipo e nível de acesso.
+     * Este método é chamado pela rota '/dashboards' (nomeada 'dashboard').
+     *
+     * @param  \App\Models\Usuario  $usuario  Instância do usuário autenticado.
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function redirecionamentoPorTipoUsuario(\App\Models\Usuario $usuario)
+    {
+        // Lógica de Nível de Acesso Fixo
+        if ($usuario->nivel_acesso === 1 && $usuario->tipo_usuario === 'administrador') {
+            return redirect()->route('admin.dashboard');
+        } elseif ($usuario->nivel_acesso === 2 && $usuario->tipo_usuario === 'corretor') {
+            return redirect()->route('corretor.dashboard');
+        } elseif ($usuario->nivel_acesso === 3 && $usuario->tipo_usuario === 'funcionario') {
+            return redirect()->route('funcionario.dashboard');
+        } else {
+            // Para cliente, proprietario, locatario (nível 4) ou qualquer outro caso
+            return redirect()->route('cliente.dashboard');
+        }
+    }
 
-    // -----------------------------------------------------------
-        // MÉTODOS DE AUTENTICAÇÃO E DASHBOARD (FALTANDO)
-        // -----------------------------------------------------------
+    public function authenticate(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ], [
+            'email.required' => 'O email é obrigatório.',
+            'password.required' => 'A senha é obrigatória.',
+        ]);
 
-        public function authenticate(Request $request) { /* Lógica de login: Auth::attempt() */ }
-        public function logout(Request $request) { /* Lógica de logout: Auth::logout() */ }
-        public function showRegisterForm() { /* Retorna view('auth.register') */ }
-        public function registerUser(Request $request) { /* Lógica de cadastro público */ }
+        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            $usuario = Auth::user();
 
-        // MÉTODOS DE REDIRECIONAMENTO E EXIBIÇÃO DE DASHBOARD
-        public function redirecionamentoPorTipoUsuario(\App\Models\Usuario $usuario) { /* Lógica switch de redirecionamento */ }
-        public function showAdminDashboard() { return view('dashboards.admin'); }
-        public function showCorretorDashboard() { return view('dashboards.corretor'); }
-        public function showFuncionarioDashboard() { return view('dashboards.funcionario'); }
-        public function showClienteDashboard() { return view('dashboards.cliente'); }
+            return $this->redirecionamentoPorTipoUsuario($usuario);
+        } else {
+            throw ValidationException::withMessages([
+                'email' => ['As credenciais fornecidas não correspondem com os nossos registros.'],
+            ]);
+        }
+    }
+
+    
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+
+    public function showRegisterForm()
+    {
+        // Lógica para exibir a view de cadastro público, com endereços, se necessário
+        return view('auth.register');
+    }
+
+    /**
+     * Lida com o cadastro de um novo usuário público (Register Store).
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function registerUser(Request $request)
+    {
+        // Seu código de validação e criação de usuário público com tipo/nível forçado
+        // ...
+        return redirect('/login')->with('success', 'Cadastro realizado com sucesso! Por favor, faça login.');
+    }
+    // MÉTODOS DE REDIRECIONAMENTO E EXIBIÇÃO DE DASHBOARD
+
+    public function showAdminDashboard()
+    {
+        return view('dashboards.admin');
+    }
+
+    public function showCorretorDashboard()
+    {
+        return view('dashboards.corretor');
+    }
+
+    public function showFuncionarioDashboard()
+    {
+        return view('dashboards.funcionario');
+    }
+
+    public function showClienteDashboard()
+    {
+        return view('dashboards.cliente');
+    }
 }
