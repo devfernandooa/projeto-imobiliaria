@@ -131,26 +131,7 @@
                 <h2 class="fw-bold">Nossos Imóveis</h2>
                 <p class="text-muted">Encontre o imóvel perfeito para você</p>
             </div>
-            {{-- <ul class="nav nav-tabs justify-content-center mb-4" id="propertyTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all"
-                            type="button" role="tab" aria-controls="all" aria-selected="true">Todos</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="sale-tab" data-bs-toggle="tab" data-bs-target="#sale"
-                            type="button" role="tab" aria-controls="sale" aria-selected="false">Venda</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="rent-tab" data-bs-toggle="tab" data-bs-target="#rent"
-                            type="button" role="tab" aria-controls="rent"
-                            aria-selected="false">Aluguel</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="commercial-tab" data-bs-toggle="tab"
-                            data-bs-target="#commercial" type="button" role="tab" aria-controls="commercial"
-                            aria-selected="false">Comercial</button>
-                    </li>
-                </ul> --}}
+        
 
             <div class="tab-content" id="propertyTabsContent">
                 <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
@@ -158,6 +139,7 @@
 
                     <div class="row g-4">
                         @forelse ($imoveis as $imovel)
+                         
                             <div class="col-md-6 col-lg-4 col-xl-3">
                                 <div class="card property-card h-100 shadow-lg px-2 pt-3">
 
@@ -169,10 +151,10 @@
                                         </span>
                                     </div>
 
-                                    {{-- >>>>> CÓDIGO CORRIGIDO AQUI <<<<< --}}
                                     @if ($imovel->fotos->isNotEmpty())
-                                        {{-- Exibe a URL da primeira foto --}}
+                                       
                                         <img src="{{ $imovel->fotos->first()->foto_url }}" class="card-img-top"
+                                       
                                             alt="Foto do Imóvel {{ $imovel->tipo_imovel }}"
                                             style="height: 200px; object-fit: cover;"> {{-- Adicionei um estilo para padronizar o tamanho --}}
                                     @else
@@ -226,17 +208,17 @@
                     </div>
                 </div>
 
-                <!-- Other tab panes would contain filtered properties -->
+               
                 <div class="tab-pane fade" id="sale" role="tabpanel" aria-labelledby="sale-tab">
-                    <!-- Content for sale properties -->
+                    
                     <div class="alert alert-info">Imóveis para venda serão exibidos aqui</div>
                 </div>
                 <div class="tab-pane fade" id="rent" role="tabpanel" aria-labelledby="rent-tab">
-                    <!-- Content for rent properties -->
+                   
                     <div class="alert alert-info">Imóveis para aluguel serão exibidos aqui</div>
                 </div>
                 <div class="tab-pane fade" id="commercial" role="tabpanel" aria-labelledby="commercial-tab">
-                    <!-- Content for commercial properties -->
+                    
                     <div class="alert alert-info">Imóveis comerciais serão exibidos aqui</div>
                 </div>
             </div>
